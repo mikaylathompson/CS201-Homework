@@ -138,7 +138,6 @@
 
 ; ********************************************************
 
-
 (define roman-notation
   (lambda (n)
     (cond
@@ -156,8 +155,6 @@
       ((= n 4) (cons 'i (cons 'v (roman-notation (- n 4)))))
       ((>= n 1) (cons 'i (roman-notation (- n 1))))
       (else '() ))))
-
-
 
 ; ********************************************************
 ; ** problem 4 ** (10 points)
@@ -206,7 +203,7 @@
   (lambda (n)
     (if (= n 0)
         '()
-        (cons (greedy-units (- n (biggest-unit n))) (biggest-unit n)))))
+        (cons (biggest-unit n) (greedy-units (- n (biggest-unit n)))))))
 
 
 ; ********************************************************
