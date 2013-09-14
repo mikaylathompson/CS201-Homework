@@ -312,7 +312,13 @@
             (all? pred? (cdr lst))
             #f))))
 
-
+(define exists?
+  (lambda (pred? lst)
+    (if (equal? '() lst)
+        #f
+        (if (pred? (car lst))
+            #t
+            (exists? pred? (cdr lst))))))
 
 ; ********************************************************
 ; ** problem 8 ** (10 points)
