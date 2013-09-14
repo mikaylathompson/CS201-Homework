@@ -138,7 +138,17 @@
 
 ; ********************************************************
 
-; (Replace this comment with your procedure(s).)
+(define roman-notation
+  (lambda (n)
+    (cond
+      ((>= n 1000) (cons 'm (roman-notation (- n 1000))))
+      ((>= n 500) (cons 'd (roman-notation (- n 500))))
+      ((>= n 100) (cons 'c (roman-notation (- n 100))))
+      ((>= n 50) (cons 'l (roman-notation (- n 50))))
+      ((>= n 10) (cons 'x (roman-notation (- n 10))))
+      ((>= n 5) (cons 'v (roman-notation (- n 5))))
+      ((>= n 1) (cons 'i (roman-notation (- n 1))))
+      (else '() ))))
 
 ; ********************************************************
 ; ** problem 4 ** (10 points)
