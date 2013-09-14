@@ -64,10 +64,10 @@
 ; ********************************************************
 
 (define first-digit
-	(lambda (n, base)
+	(lambda (n base)
           (if (< n base)
               n
-              (first-digit (quotient n base)))))
+              (first-digit (quotient n base) base))))
 
 ; ********************************************************
 ; ** problem 2 ** (10 points)
