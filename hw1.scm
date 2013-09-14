@@ -38,7 +38,7 @@
 ; Decimal numbers (eg, 6.237) are fine.  Exclude time
 ; spent reading.
 
-(define hours 1)
+(define hours 3)
 
 ; ********************************************************
 ; ** problem 1 ** (9 points)
@@ -304,7 +304,15 @@
 ; (exists? list? '(1 2 (3 4) 5 6)) => #t
 ; ********************************************************
 
-; (Replace this comment with your procedures.)
+(define all?
+  (lambda (pred? lst)
+    (if (equal? '() lst)
+        #t
+        (if (pred? (car lst))
+            (all? pred? (cdr lst))
+            #f))))
+
+
 
 ; ********************************************************
 ; ** problem 8 ** (10 points)
