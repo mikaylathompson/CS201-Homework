@@ -138,17 +138,26 @@
 
 ; ********************************************************
 
+
 (define roman-notation
   (lambda (n)
     (cond
       ((>= n 1000) (cons 'm (roman-notation (- n 1000))))
+      ((>= n 900) (cons 'c (cons 'm (roman-notation (- n 900)))))
       ((>= n 500) (cons 'd (roman-notation (- n 500))))
+      ((>= n 400) (cons 'c (cons 'd (roman-notation (- n 400)))))
       ((>= n 100) (cons 'c (roman-notation (- n 100))))
+      ((>= n 90) (cons 'x (cons 'c (roman-notation (- n 90)))))
       ((>= n 50) (cons 'l (roman-notation (- n 50))))
+      ((>= n 40) (cons 'x (cons 'l (roman-notation (- n 40)))))
       ((>= n 10) (cons 'x (roman-notation (- n 10))))
+      ((= n 9) (cons 'i (cons 'x (roman-notation (- n 9)))))
       ((>= n 5) (cons 'v (roman-notation (- n 5))))
+      ((= n 4) (cons 'i (cons 'v (roman-notation (- n 4)))))
       ((>= n 1) (cons 'i (roman-notation (- n 1))))
       (else '() ))))
+
+
 
 ; ********************************************************
 ; ** problem 4 ** (10 points)
