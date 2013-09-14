@@ -198,7 +198,16 @@
 ; (greedy-units 3/7) => (1/3 1/11 1/231)
 ; ********************************************************
 
-; (Replace this comment with your procedure(s).)
+(define biggest-unit 
+  (lambda (n)
+    (/ 1 (ceiling (/ 1 n)))))
+
+(define greedy-units
+  (lambda (n)
+    (if (= n 0)
+        '()
+        (cons (greedy-units (- n (biggest-unit n))) (biggest-unit n)))))
+
 
 ; ********************************************************
 ; ** problem 5 ** (10 points)
