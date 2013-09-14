@@ -403,7 +403,15 @@
       (else #f ))))
                    
     
-
+(define depth
+  (lambda (exp)
+    (cond
+      ((number? exp) 0)
+      ((equal? exp '()) 0)
+      ((list? exp) (+ 1 (max 
+                         (depth (car exp)) 
+                         (depth (cdr exp)))))
+      (else 0))))
 
 ; ********************************************************
 ; ** problem 10 (10 points)
