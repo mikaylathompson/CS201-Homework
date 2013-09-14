@@ -96,13 +96,13 @@
 (define one-roman-value
 	(lambda (x)
 		(cond
-			((= x 'i) 1)
-			((= x 'v) 5)
-			((= x 'x) 10)
-			((= x 'l) 50)
-			((= x 'c) 100)
-			((= x 'd) 500)
-			((= x 'm) 1000)
+			((equal? x 'i) 1)
+			((equal? x 'v) 5)
+			((equal? x 'x) 10)
+			((equal? x 'l) 50)
+			((equal? x 'c) 100)
+			((equal? x 'd) 500)
+			((equal? x 'm) 1000)
 			(else '?))))
 
 
