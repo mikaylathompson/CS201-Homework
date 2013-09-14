@@ -230,9 +230,6 @@
 ; (subsequence? '(x x (x) x) '(a x b x c x d x)) => #f
 ; ********************************************************
  
-(define sq?
-  (lambda (l1 l2)
-    (subsequence? l1 l2)))
 
 (define subsequence?
   (lambda (l1 l2)
@@ -264,7 +261,20 @@
 ; (top-replace '(2 1) '(1 2) '((3 4) (2 1) (1 2))) => ((3 4) (1 2) (1 2))
 ; ********************************************************
 
-; (Replace this comment with your procedure(s).)
+(define tr
+  (lambda (a b c)
+    (top-replace a b c)))
+
+(define top-replace
+  (lambda (fnd rep lst)
+    (cond
+      ((equal? lst '()) '())
+      ((equal? fnd (car lst))
+       (cons rep (top-replace fnd rep (cdr lst))))
+      (else 
+       (cons (car lst) (top-replace fnd rep (cdr lst)))))))
+
+
 
 ; ********************************************************
 ; ** problem 7 ** (10 points)
