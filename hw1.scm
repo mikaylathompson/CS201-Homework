@@ -330,7 +330,7 @@
 ; and returns #t if every top-level element of lst1 
 ; is equal? to a top-level element of lst2,
 ; AND every top-level element of lst2 is equal? to 
-; a top-level element of lst2.
+; a top-level element of lst1.
 
 ; Examples
 ; (set-equal? '(a b) '(b a)) => #t
