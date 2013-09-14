@@ -340,7 +340,15 @@
 ; (set-equal? '(() (a) (a a)) '(() (a a))) => #f
 ; ********************************************************
 
-; (Replace this comment with your procedure(s).)
+(define s-e
+  (lambda (l1 l2)
+    (set-equal l1 l2)))
+
+(define set-equal?
+  (lambda (l1 l2)
+    (if (equal? l1 l2)
+        #t
+        #f)))
 
 ; ********************************************************
 ; ** problem 9 (10 points)
@@ -377,7 +385,25 @@
 ; (depth '((2) ((3)) (((4))))) => 4
 ; ********************************************************
 
-; (Replace this comment with your procedures.)
+(define ne?
+  (lambda (exp)
+    (number-expression? exp)))
+
+
+(define number-expression?
+  (lambda (exp)
+    (cond
+      ((number? exp) #t)
+      ((equal? exp '()) #f)
+      ((list? exp) 
+       (if (> (length exp) 1)
+           (and (number-expression? (car exp))
+                (number-expression? (cdr exp)))
+           (number-expression? (car exp))))
+      (else #f ))))
+                   
+    
+
 
 ; ********************************************************
 ; ** problem 10 (10 points)
