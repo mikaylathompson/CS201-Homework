@@ -230,7 +230,21 @@
 ; (subsequence? '(x x (x) x) '(a x b x c x d x)) => #f
 ; ********************************************************
  
-; (Replace this comment with your procedure(s).)
+(define sq?
+  (lambda (l1 l2)
+    (subsequence? l1 l2)))
+
+(define subsequence?
+  (lambda (l1 l2)
+    (cond 
+      ((> (length l1) (length l2)) #f)
+      ((equal? l1 l2) #t)
+      ((equal? l1 '()) #t)
+      (else (if (equal? (car l1) (car l2))
+                (subsequence? (cdr l1) (cdr l2))
+                (subsequence? l1 (cdr l2)))))))
+  
+
 
 ; ********************************************************
 ; ** problem 6 ** (10 points)
