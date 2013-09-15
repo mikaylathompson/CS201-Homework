@@ -406,7 +406,7 @@
 (define depth
   (lambda (exp)
     (cond
-      ((number? exp) 0)
+      ((number? exp) -1)
       ((equal? exp '()) 0)
       ((list? exp) (+ 1 (max 
                          (depth (car exp)) 
