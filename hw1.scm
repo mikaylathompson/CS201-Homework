@@ -406,11 +406,11 @@
 (define depth
   (lambda (exp)
     (cond
-      ((number? exp) -1)
+      ((number? exp) 0)
       ((equal? exp '()) 0)
       ((list? exp) (+ 1 (max 
                          (depth (car exp)) 
-                         (depth (cdr exp)))))
+                         (- (depth (cdr exp)) 1))))
       (else 0))))
 
 ; ********************************************************
@@ -437,7 +437,19 @@
 ; (piece-of? '(17 18) '(17 18 (19))) => #f
 ; ********************************************************
 
-; (Replace this comment with your procedure(s).)
+(define po?
+  (lambda (a b)
+    (piece-of? a b)))
+
+(define piece-of?
+  (lambda (a b)
+    (cond
+      ((equal? a b) #t)
+      ((equal? '() b) #f)
+      ((number? b) #f)
+      (else (or
+             (piece-of? a (car b))
+             (piece-of? a (cdr b)))))))
 
 ; ********************************************************
 ; **** end of hw #1
