@@ -357,15 +357,32 @@
         #f
         (or (equal? (car list) target)
             (includes? (cdr list) target)))))
+; first-included?  takes two lists.  It returns true
+; if every element of the first list is in the
+; second list.
+; Examples:
+; (first-included? '() '(3 4 5)) => #t
+; (first-included? '(3 4) '(3 4 5)) => #t
+; (first-included? '(3 4) '(3 5)) => #f
+; (first-included? '(3 3 4) '(3 4)) => #t
+; (first-included? '(3 (3 4)) '(3 4)) => #f
+; 
+(define first-included?
+  (lambda (list1 list2)
+    (cond
+      ((equal? list1 '()) #t)
+      ((equal? list2 '()) #f)
+      (else (and (includes? list2 (car list1))
+                 (first-included? (cdr list1) list2))))))
 
-
+     
 (define set-equal?
   (lambda (l1 l2)
     (if (equal? l1 l2)
         #t
         (and
-         (includes? l1 (car l2))
-         (includes? l2 (car l1))))))
+         (first-included? l1 l2)
+         (first-included? l2 l1)))))
         
 
 ; ********************************************************
