@@ -344,11 +344,29 @@
   (lambda (l1 l2)
     (set-equal l1 l2)))
 
+; includes? takes a list and a target.  It returns true
+; if target is a top level element of list.
+; Examples:
+; (includes? '() 3) => #f
+; (includes? '(3 5) 3) => #t
+; (includes? '(3 (4 5) 6) 4) => #f
+; (includes? '(3 (4 5) 6) '(4 5)) =>t
+(define includes?
+  (lambda (list target)
+    (if (equal? '() list)
+        #f
+        (or (equal? (car list) target)
+            (includes? (cdr list) target)))))
+
+
 (define set-equal?
   (lambda (l1 l2)
     (if (equal? l1 l2)
         #t
-        #f)))
+        (and
+         (includes? l1 (car l2))
+         (includes? l2 (car l1))))))
+        
 
 ; ********************************************************
 ; ** problem 9 (10 points)
