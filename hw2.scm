@@ -386,12 +386,25 @@
 
 ;**************************************************************
 
+; join-to should add element to all top-level items in list
+; Examples:
+; (join-to 3 '((a b) (c d) (e f))) => ((3 a b) (3 c d) (3 e f))
+(define join-to
+  (lambda (element lst)
+    (if (equal? lst '()) 
+        '()
+        (cons (cons element (car lst)) 
+              (join-to element (cdr lst))))))
+
 (define all-moves
   (lambda (state)
     (if (null? state)
-        '()
-        (cons (car state)
-              (all-moves (cdr state))))))
+        '( () )
+        (remove-duplicates (append
+                            (all-moves (cdr state))
+                            (join-to (car state) (all-moves (cdr state))))))))
+
+
 
 ;**************************************************************
 ; ** problem 7 ** (10 points)
@@ -426,7 +439,26 @@
 
 ;**************************************************************
 
-; (Replace this comment with your procedure(s).)
+
+    
+(define possible-moves
+  (lambda (sum state)
+    (filter (lambda (move) (and 
+                            (equal? sum (sum-of move))
+                            (ok-move? move state)))
+            (all-moves state))))
+            
+
+; next-states:
+;    for move in all-moves
+;       append.next-states((make-move state move))
+;       
+
+(define next-states
+  (lambda (sum state)
+    (
+    
+
 
 ;**************************************************************
 ; ** problem 8 ** (10 points)
