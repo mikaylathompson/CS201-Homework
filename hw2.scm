@@ -333,7 +333,34 @@
 
 ;**************************************************************
 
-; (Replace this comment with your procedure(s).)
+; includes? takes a list and a target.  It returns true
+; if target is a top level element of list. (from hw1)
+; Examples:
+; (includes? '() 3) => #f
+; (includes? '(3 5) 3) => #t
+; (includes? '(3 (4 5) 6) 4) => #f
+; (includes? '(3 (4 5) 6) '(4 5)) =>t
+(define includes?
+  (lambda (list target)
+    (if (equal? '() list)
+        #f
+        (or (equal? (car list) target)
+            (includes? (cdr list) target)))))
+
+(define ok-move?
+  (lambda (move state)
+    (cond
+      ((null? move) #t)
+      ((includes? state (car move)) 
+       (ok-move? (cdr move) (remove-leftmost (car move) state)))
+      (else #f))))
+    
+(define make-move
+  (lambda (move state)
+    (if (null? move)
+        state
+        (make-move (cdr move) (remove-leftmost (car move) state)))))
+
 
 ;**************************************************************
 ; ** problem 6 ** (10 points)
