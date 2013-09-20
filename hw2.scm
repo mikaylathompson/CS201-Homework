@@ -505,13 +505,12 @@
 
 ;**************************************************************
 
-(define crm
-  (lambda (sum state)
-    (choose-random-move sum state)))
 
 (define choose-random-move
   (lambda (sum state)
-    (pick-random (possible-moves sum state))))
+    (if (equal? 0 (length (possible-moves sum state)))
+        'none
+        (pick-random (possible-moves sum state)))))
 
 ;**************************************************************
 ; ** problem 9 ** (10 points)
