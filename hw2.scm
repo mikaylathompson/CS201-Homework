@@ -123,24 +123,14 @@
 
 ;**************************************************************
 
-; includes? takes a list and a target.  It returns true
-; if target is a top level element of list. (from hw1)
-; Examples:
-; (includes? '() 3) => #f
-; (includes? '(3 5) 3) => #t
-; (includes? '(3 (4 5) 6) 4) => #f
-; (includes? '(3 (4 5) 6) '(4 5)) =>t
-(define includes?
-  (lambda (list target)
-    (if (equal? '() list)
-        #f
-        (or (equal? (car list) target)
-            (includes? (cdr list) target)))))
 
-; transfer-new 
-(define transfer-new
-  (lambda (l1 l2)
-    l1))
+(define remove-duplicates
+  (lambda (list)
+    (if (null? list)
+        '()
+        (cons (car list) 
+              (remove-duplicates (remove-all (car list) (cdr list)))))))
+
 
 ;**************************************************************
 ; For the remaining problems,
