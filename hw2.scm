@@ -271,7 +271,23 @@
 
 ;**************************************************************
 
-; (Replace this comment with your procedure(s).)
+(define sum-of
+  (lambda (list)
+    (if (null? list)
+        0
+        (+ (car list) (sum-of (cdr list))))))
+
+(define pick-random
+  (lambda (list)
+    (list-ref list (random-integer (length list)))))
+    
+(define roll
+  (lambda (dice)
+    (cond
+      ((null? dice) 0)
+      (else (sum-of 
+             (list (pick-random (car dice)) 
+                   (roll (cdr dice))))))))
 
 ;**************************************************************
 ; ** problem 5 ** (10 points)
