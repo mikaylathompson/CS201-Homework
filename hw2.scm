@@ -58,7 +58,19 @@
 ; (remove-all 7 '(3 2 1)) => (3 2 1)
 ;**************************************************************
 
-; (Replace this comment with your procedure(s).)
+(define remove-leftmost
+  (lambda (item list)
+    (cond
+      ((null? list) '())
+      ((equal? (car list) item) (cdr list))
+      (else (cons (car list) (remove-leftmost item (cdr list)))))))
+
+(define remove-all
+  (lambda (item list)
+    (cond
+      ((null? list) '())
+      ((equal? (car list) item) (remove-all item (cdr list)))
+      (else (cons (car list) (remove-all item (cdr list)))))))
 
 ;**************************************************************
 ; ** problem 2 ** (10 points)
