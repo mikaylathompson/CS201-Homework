@@ -2,8 +2,8 @@
 ; electronically, using the submit system on the Zoo.
 
 ;**************************************************************
-; Name:
-; Email address:
+; Name: Mikayla Thompson
+; Email address: mikayla.thompson@yale.edu
 ;**************************************************************
 
 ; If you are asked to write a procedure, you MAY write auxiliary
@@ -23,7 +23,7 @@
 ; Please change 0 in the definition below to
 ; reflect how long you spent on this assignment.
 
-(define hours 0)
+(define hours 1)
 
 ;**************************************************************
 ; ** problem 1 ** (10 points)
@@ -79,7 +79,13 @@
 
 ;**************************************************************
 
-; (Replace this comment with your procedure(s).)
+(define filter
+  (lambda (pred? list)
+    (if (equal? list '())
+        '()
+        (if (pred? (car list))
+            (cons (car list) (filter pred? (cdr list)))
+            (filter pred? (cdr list))))))
 
 ;**************************************************************
 ; ** problem 3 ** (10 points)
@@ -105,7 +111,24 @@
 
 ;**************************************************************
 
-; (Replace this comment with your procedure(s).)
+; includes? takes a list and a target.  It returns true
+; if target is a top level element of list. (from hw1)
+; Examples:
+; (includes? '() 3) => #f
+; (includes? '(3 5) 3) => #t
+; (includes? '(3 (4 5) 6) 4) => #f
+; (includes? '(3 (4 5) 6) '(4 5)) =>t
+(define includes?
+  (lambda (list target)
+    (if (equal? '() list)
+        #f
+        (or (equal? (car list) target)
+            (includes? (cdr list) target)))))
+
+; transfer-new 
+(define transfer-new
+  (lambda (l1 l2)
+    l1))
 
 ;**************************************************************
 ; For the remaining problems,
