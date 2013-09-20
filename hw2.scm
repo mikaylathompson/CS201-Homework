@@ -505,12 +505,33 @@
 
 ;**************************************************************
 
-
 (define choose-random-move
   (lambda (sum state)
     (if (equal? 0 (length (possible-moves sum state)))
         'none
         (pick-random (possible-moves sum state)))))
+
+; return the top-level element of a list with the shortest length.
+; If there are elements with equal length, return a random one.
+(define shortest-element
+  (lambda (lst)
+    (if (equal? 1 (length lst))
+        (car lst)
+        (cond
+          ((< (length (car lst)) (length (shortest-element (cdr lst))))
+            (car lst))
+          ((> (length (car lst)) (length (shortest-element (cdr lst))))
+            (shortest-element (cdr lst)))
+          (else (if (equal? 0 (random-integer 2))
+                    (car lst)
+                    (shortest-element (cdr lst))))))))
+
+
+(define choose-short-move
+  (lambda (sum state)
+    (if (equal? 0 (length (possible-moves sum state)))
+        'none
+        (shortest-element (possible-moves sum state)))))
 
 ;**************************************************************
 ; ** problem 9 ** (10 points)
