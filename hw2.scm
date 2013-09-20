@@ -386,7 +386,12 @@
 
 ;**************************************************************
 
-; (Replace this comment with your procedure(s).)
+(define all-moves
+  (lambda (state)
+    (if (null? state)
+        '()
+        (cons (car state)
+              (all-moves (cdr state))))))
 
 ;**************************************************************
 ; ** problem 7 ** (10 points)
