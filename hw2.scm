@@ -438,27 +438,28 @@
 ; (next-states 11 '(1 2 6)) => ()
 
 ;**************************************************************
-
-
     
 (define possible-moves
   (lambda (sum state)
     (filter (lambda (move) (and 
                             (equal? sum (sum-of move))
                             (ok-move? move state)))
-            (all-moves state))))
-            
+            (all-moves state))))    
 
-; next-states:
-;    for move in all-moves
-;       append.next-states((make-move state move))
-;       
+; get-states takes in a list of moves, applies each of 
+; them to a given state, and a returns a list of the 
+; resulting states.
+(define get-states
+  (lambda (state moves)
+    (if (null? moves)
+        '()
+        (cons (make-move (car moves) state) 
+              (get-states state (cdr moves))))))
 
 (define next-states
   (lambda (sum state)
-    (
+    (get-states state (possible-moves sum state))))
     
-
 
 ;**************************************************************
 ; ** problem 8 ** (10 points)
@@ -504,7 +505,13 @@
 
 ;**************************************************************
 
-; (Replace this comment with your procedure(s).)
+(define crm
+  (lambda (sum state)
+    (choose-random-move sum state)))
+
+(define choose-random-move
+  (lambda (sum state)
+    (pick-random (possible-moves sum state))))
 
 ;**************************************************************
 ; ** problem 9 ** (10 points)
