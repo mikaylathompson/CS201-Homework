@@ -23,7 +23,7 @@
 ; Please change 0 in the definition below to
 ; reflect how long you spent on this assignment.
 
-(define hours 1)
+(define hours 4)
 
 ;**************************************************************
 ; ** problem 1 ** (10 points)
