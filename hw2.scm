@@ -693,10 +693,8 @@
         'none
         (longest-element (possible-moves sum state)))))
 
-
-
 ; includes? takes a list and a target.  It returns true
-; if target is a top level element of list.
+; if target is a top level element of list. (from hw1)
 (define includes?
   (lambda (list target)
     (if (equal? '() list)
@@ -704,28 +702,57 @@
         (or (equal? (car list) target)
             (includes? (cdr list) target)))))
 
-; with (includes? state 8): (49 46 5)
-; without (includes? state 8): (45 46 9)
-; cond statement with 9/8=short, 1/2=long, other=random: (39 57 4)
-; cond with 9/8/7=short, 1/2/3=long, other=random: (51 44 5)
-; cond
+
+; Results are against short-move unless otherwise noted
+; a. 9/8=short, other=long: (49 46 5)
+; b. 9=short, other=long: (45 46 9)
+; c. 9/8=short, 1/2=long, other=random: (39 57 4)
+; d. 9/8/7=short, 1/2/3=long, other=random: (51 44 5)
+; e. 9/8/7=short, 1/2=long, other=rand: (54 41 5)
+; f. 9/8=short, 1/2/3=long, other=rand: (40 57 3)
+
+; Because the results were pretty close, I ran f against c 500 times
+; and got a result of (243 236 21).  That's still very close,
+; but I'm going to keep f as my player.  In 500 games against
+; random-move, the result was (383 105 12).
+
+; Another measure of success would be how many games a particular
+; strategy can actually win (end with a score of 0).
+; a. 3/100
+; b. 6/10
+; c. 4/100
+; d. 4/10
+; e. 5/10
+; f. 4/100
+; short. 7/10
+; rand. 1/100
+; long. 1/100
+; So short is a bit better, and random and long are a bit worse, but
+; there's not a large difference.
+
 (define choose-my-move
   (lambda (sum state)
     (let ((moves (possible-moves sum state)))
     (if (equal? 0 (length moves))
         'none
-   ;     (if (or (includes? state 9)
-    ;            #f) ;(includes? state 8))
-     ;       (choose-short-move sum state)
-      ;      (choose-long-move sum state))))))
         (cond
           ((or (includes? state 9)
-               (includes? state 8)
-               (includes? state 7))
+               (includes? state 8))
            (choose-short-move sum state))
           ((or (includes? state 1)
-               (includes? state 2))
+               (includes? state 2)
+               (includes? state 3))
            (choose-long-move sum state))
           (else (choose-random-move sum state)))))))
+
+; count how many games a strategy can end with a score of 0
+(define count-wins
+  (lambda (player games won flappers dice)
+    (if (<= games 0)
+	won
+	(let ((score (play player flappers dice)))
+	  (count-wins player (- games 1)
+			(+ won (if (= score 0) 1 0))
+			flappers dice)))))
 
 ;******************  end of hw #2  *****************************
