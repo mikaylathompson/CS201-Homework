@@ -584,7 +584,26 @@
 
 ;**************************************************************
 
-; (Replace this comment with your procedure(s).)
+; In each turn: 
+; Roll dice to get sum
+; use sum and state to list possible moves
+; choose appropriate move
+; return the new state
+;   if none: calculate the sum and return that.
+
+
+(define play
+  (lambda (player 
+           flaps 
+           dice)
+    (let ((next (player (roll dice) flaps)))
+    (if (equal? next 'none)
+        (sum-of flaps)
+        (play player
+              (make-move next flaps)
+              dice)))))
+   
+
 
 ;**************************************************************
 ; ** problem 10 ** (10 points)
