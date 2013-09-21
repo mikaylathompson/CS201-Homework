@@ -663,6 +663,69 @@
 
 ;**************************************************************
 
-; (Replace this comment with your analysis and procedure(s).)
+; (a) My computer was not very happy with me, but I ran match with
+;     1000 games between short-move and random-move.  The results
+;     were 754 wins for short-move, 224 for random-move, and 22 ties.
+;     Clearly, short-move is the better player, but it doesn't seem
+;     to be all that good if it's only 3 times better than a totally
+;     random player.
+
+; return the top-level element of a list with the longest length.
+; If there are elements with equal length, return a random one.
+(define longest-element
+  (lambda (lst)
+    (if (equal? 1 (length lst))
+        (car lst)
+        (cond
+          ((> (length (car lst)) (length (longest-element (cdr lst))))
+            (car lst))
+          ((< (length (car lst)) (length (longest-element (cdr lst))))
+            (longest-element (cdr lst)))
+          (else (if (equal? 0 (random-integer 2))
+                    (car lst)
+                    (longest-element (cdr lst))))))))
+
+; A player that always chooses the move that flips the most flaps
+; It plays very poorly (only winning 2 of 10 games against short-move)
+(define choose-long-move
+  (lambda (sum state)
+    (if (equal? 0 (length (possible-moves sum state)))
+        'none
+        (longest-element (possible-moves sum state)))))
+
+
+
+; includes? takes a list and a target.  It returns true
+; if target is a top level element of list.
+(define includes?
+  (lambda (list target)
+    (if (equal? '() list)
+        #f
+        (or (equal? (car list) target)
+            (includes? (cdr list) target)))))
+
+; with (includes? state 8): (49 46 5)
+; without (includes? state 8): (45 46 9)
+; cond statement with 9/8=short, 1/2=long, other=random: (39 57 4)
+; cond with 9/8/7=short, 1/2/3=long, other=random: (51 44 5)
+; cond
+(define choose-my-move
+  (lambda (sum state)
+    (let ((moves (possible-moves sum state)))
+    (if (equal? 0 (length moves))
+        'none
+   ;     (if (or (includes? state 9)
+    ;            #f) ;(includes? state 8))
+     ;       (choose-short-move sum state)
+      ;      (choose-long-move sum state))))))
+        (cond
+          ((or (includes? state 9)
+               (includes? state 8)
+               (includes? state 7))
+           (choose-short-move sum state))
+          ((or (includes? state 1)
+               (includes? state 2))
+           (choose-long-move sum state))
+          (else (choose-random-move sum state)))))))
 
 ;******************  end of hw #2  *****************************
