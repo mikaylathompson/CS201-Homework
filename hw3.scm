@@ -333,8 +333,20 @@
 ; (write-symbol 'c '(0 0 1 (q2) 1 1 1)) => (0 0 1 (q2) c 1 1)
 ; (write-symbol 'b '(1 (q3) 0)) => (1 (q3))
 ; ****************************************************************
+;normalize: check if first (car config) is blank.  If so, send (cdr config) to normalize
+;           check if the last (list-ref config (length config)) is blank.  If so, remove it.
 
-; (Please replace this comment with your procedures.)
+(define normalize
+  (lambda (config)
+    (cond
+      ((and (equal? (car config) 'b)
+            (equal? (list-ref config (- (length config) 1)) 'b))
+       (normalize (reverse (cdr (reverse (cdr config))))))
+      ((equal? (car config) 'b) (normalize (cdr config)))
+      ((equal? (list-ref config (- (length config) 1)) 'b) (normalize (reverse (cdr (reverse config)))))
+      (else config))))
+    
+    
 
 ; ****************************************************************
 ; ** problem 4 ** (10 points)
