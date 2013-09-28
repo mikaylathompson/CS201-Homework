@@ -404,9 +404,10 @@
 
 (define shift-head-left
   (lambda (config)
-    (if  (list? (car (cdr config)))
-         (cons (car (cdr config)) (cons (car config) (cdr (cdr config))))
-         (cons (car config) (shift-head-left (cdr config))))))
+    (cond
+      ((list? (car config)) (normalize (cons (car config) (cons 'b (cdr config)))))  ;Already on the head?  Add a blank
+      ((list? (car (cdr config))) (cons (car (cdr config)) (cons (car config) (cdr (cdr config))))) ;Next is the head?  Move it up.
+      (else (cons (car config) (shift-head-left (cdr config))))))) ;Not to the head yet?  Keep looking.
 
 
 ; (Please replace this comment with your procedures.)
