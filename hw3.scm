@@ -25,7 +25,7 @@
 ; Modify the following definition to reflect the number of
 ; hours you spent on this assignment.
 
-(define hours 0)
+(define hours 3)
 
 ; ****************************************************************
 ; Turing machines were described in the lectures;
@@ -102,6 +102,23 @@
 ; ** problem 1 (15 points)
 ; Define (in the format just given)
 ; a Turing machine named
+
+;  | |0|1|0|1| | | | | |    q1--go to end of row(don't change anything)
+;     ^
+;  | |0|1|0|1| | | | | |    q2--go backwards to nearest number
+;             ^
+;  | |0|1|0|1| | | | | |
+;
+;  | |0|1|0|1| | | | | |
+;
+;  | |0|1|0|1| | | | | |
+;
+;  | |0|1|0|1| | | | | |
+;
+;  | | | | | | | | | | |
+
+;  | |0|1|0|1|1|0|1|0| |
+
 
 ; tm-mirror
 
