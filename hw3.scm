@@ -487,7 +487,19 @@
 ; (next-config tm1 '((q3) 1 1 0)) => ((q3) 1 1 0)
 ; ****************************************************************
 
-; (Please replace this comment with your procedure(s).)		   
+
+; Determine current state and symbol (c-state, c-symbol)
+; Look up the relevant instruction (i-lookup)
+; Apply it. (write-symbol, change-state, shift-head)
+
+
+(define next-config
+  (lambda (machine config)
+    (if (halted? machine config)
+        config)))
+        
+
+
 
 ; ****************************************************************
 ; If your procedures are working, then you should
