@@ -241,6 +241,12 @@
     (and (equal? state (i-state inst))
          (equal? symbol (i-symbol inst)))))
 
+(define i-lookup
+  (lambda (state symbol machine)
+    (cond
+      ((null? machine) #f)
+      ((i-match? state symbol (car machine)) (car machine))
+      (else (i-lookup state symbol (cdr machine))))))
 
 ; ****************************************************************
 ; A Turing machine configuration is a list, 
