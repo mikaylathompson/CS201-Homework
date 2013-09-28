@@ -353,6 +353,22 @@
         (cons (cons state '()) (cdr config))
         (cons (car config) (change-state state (cdr config))))))
 
+; write-symbol:
+;              find the head
+;              change the next symbol to sym (or add sym to the end)
+;              renormalize
+; but I can't normalize during the main loop, because that might take out blanks in the middle of the config.
+; so write-symbol-helper does the finding and changing, and write-symbol itself just normalizes the output from there
+
+(define write-symbol
+  (lambda (sym config)
+    (normalize (write-symbol-helper sym config))))
+
+(define write-symbol-helper
+  (lambda (sym config)
+    (if (list? (car config))   ; I'm on the head
+        )))
+
 
 
 ; ****************************************************************
