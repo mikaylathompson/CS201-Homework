@@ -346,7 +346,14 @@
       ((equal? (list-ref config (- (length config) 1)) 'b) (normalize (reverse (cdr (reverse config)))))
       (else config))))
     
-    
+
+(define change-state
+  (lambda (state config)
+    (if (list? (car config))
+        (cons (cons state '()) (cdr config))
+        (cons (car config) (change-state state (cdr config))))))
+
+
 
 ; ****************************************************************
 ; ** problem 4 ** (10 points)
