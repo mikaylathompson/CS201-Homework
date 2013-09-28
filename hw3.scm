@@ -410,7 +410,17 @@
       (else (cons (car config) (shift-head-left (cdr config))))))) ;Not to the head yet?  Keep looking.
 
 
-; (Please replace this comment with your procedures.)
+; shift-head-right: find the head. (list? (car config))
+;                   add the next sym to the front of the list, then the head, then copy the rest
+
+(define shift-head-right
+  (lambda (config)
+    (cond
+      ((list? (car config)) (cons (car (cdr config)) (cons (car config) (cdr (cdr config))))) ;On the head?  Move it back.
+      (else (cons (car config) (shift-head-right (cdr config)))))))
+
+
+
 
 ; ****************************************************************
 ; ** problem 5 ** (15 points)
