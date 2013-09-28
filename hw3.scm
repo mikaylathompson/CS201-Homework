@@ -236,7 +236,11 @@
 
 ; ****************************************************************
 
-; (Please replace this comment with your procedures.)
+(define i-match?
+  (lambda (state symbol inst)
+    (and (equal? state (i-state inst))
+         (equal? symbol (i-symbol inst)))))
+
 
 ; ****************************************************************
 ; A Turing machine configuration is a list, 
