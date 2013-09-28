@@ -38,7 +38,7 @@
 ; Decimal numbers (eg, 6.237) are fine.  Exclude time
 ; spent reading.
 
-(define hours 6)
+(define hours 3)
 
 ; ********************************************************
 ; ** problem 1 ** (9 points)
