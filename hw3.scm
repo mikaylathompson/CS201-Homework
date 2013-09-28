@@ -455,7 +455,12 @@
             'b
             (car (cdr config)))
         (c-symbol (cdr config)))))
-        
+
+(define halted?
+  (lambda (machine config)
+    (not (i-lookup (c-state config) (c-symbol config) machine))))
+
+
 
 ; ****************************************************************
 ; ** problem 6 ** (20 points)
