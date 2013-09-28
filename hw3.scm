@@ -180,15 +180,20 @@
                    '(q2 y q2 y l) 
                    '(q2 z q2 z l) 
                    '(q2 1 q3 y r) ;  Goes left until 0 or 1
-                   '(q2 0 q2 z r) 
-                   '(q2 b q2 b l) 
+                   '(q2 0 q4 z r) 
+                   '(q2 b q6 b r) 
                    
                    '(q3 1 q3 1 r)
                    '(q3 0 q3 0 r) ;  Saves and deposits a 1
+                   '(q3 y q3 y r)
+                   '(q3 z q3 z r)
                    '(q3 b q5 1 l)
+                   
                    
                    '(q4 1 q4 1 r)
                    '(q4 0 q4 0 r) ;  Saves and deposits a 0
+                   '(q4 y q4 y r)
+                   '(q4 z q4 z r)
                    '(q4 b q5 0 l)
                    
                    '(q5 1 q5 1 l)
@@ -202,8 +207,8 @@
                    '(q6 0 q7 0 l)
                    '(q6 1 q7 1 l)
                    
-                   '(q1 0 q1 0 l)
-                   '(q1 1 q1 0 l) ;  Goes left until a blank.  Ends.
+                   '(q7 0 q7 0 l)
+                   '(q7 1 q7 1 l) ;  Goes left until a blank.  Ends.
  
                    ))
                    
