@@ -366,8 +366,9 @@
 
 (define write-symbol-helper
   (lambda (sym config)
-    (if (list? (car config))   ; I'm on the head
-        )))
+    (if (list? (car config))   ; If I'm on the head
+        (cons (car config) (cons sym (cdr (cdr config))))  ; Assuming there are lots of extra elements, this changes the symbol.
+        (cons (car config) (write-symbol-helper sym (cdr config))))))  ; Not on the head, so keep looking
 
 
 
