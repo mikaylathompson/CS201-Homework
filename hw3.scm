@@ -416,8 +416,11 @@
 (define shift-head-right
   (lambda (config)
     (cond
-      ((list? (car config)) (cons (car (cdr config)) (cons (car config) (cdr (cdr config))))) ;On the head?  Move it back.
-      (else (cons (car config) (shift-head-right (cdr config)))))))
+      ((list? (car config))   ; On the head?
+       (if (null? (cdr config)) 
+           (cons 'b config)   ; Head is last element? Add a blank, then the head
+           (cons (car (cdr config)) (cons (car config) (cdr (cdr config)))))) ; In the middle of config? Just shift it.
+      (else (cons (car config) (shift-head-right (cdr config))))))) ;Not to the head yet?  Keep looking.
 
 
 
