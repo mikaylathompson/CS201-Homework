@@ -441,7 +441,21 @@
 ; (halted? '((q1 b q2 b r)) '((q2))) => #t
 ; ****************************************************************
 
-; (Please replace this comment with your procedures.)
+
+(define c-state
+  (lambda (config)
+    (if (list? (car config))
+        (car (car config))
+        (c-state (cdr config)))))
+
+(define c-symbol
+  (lambda (config)
+    (if (list? (car config))
+        (if (null? (cdr config))
+            'b
+            (car (cdr config)))
+        (c-symbol (cdr config)))))
+        
 
 ; ****************************************************************
 ; ** problem 6 ** (20 points)
