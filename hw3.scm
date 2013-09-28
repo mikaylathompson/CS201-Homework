@@ -103,23 +103,6 @@
 ; Define (in the format just given)
 ; a Turing machine named
 
-;  | |0|1|0|1| | | | | |    q1--go to end of row(don't change anything)
-;     ^
-;  | |0|1|0|1| | | | | |    q2--go backwards to nearest number
-;             ^
-;  | |0|1|0|1| | | | | |
-;
-;  | |0|1|0|1| | | | | |
-;
-;  | |0|1|0|1| | | | | |
-;
-;  | |0|1|0|1| | | | | |
-;
-;  | | | | | | | | | | |
-
-;  | |0|1|0|1|1|0|1|0| |
-
-
 ; tm-mirror
 
 ; that takes an input string;
@@ -167,7 +150,63 @@
 
 ; ****************************************************************
 
-; (Please replace this comment with your definition of tm-mirror.)
+;  | |0|1|0|1| | | | | |    q1--go to end of row(don't change anything)
+;     ^
+;  | |0|1|0|1| | | | | |    q2--go backwards to nearest number. To q3 if one, q4 if zero
+;             ^
+;  | |0|1|0|y| | | | | |    q3--change this number to y(one) then forward until a blank, add a 1, to q5
+;           ^
+;  | |0|1|0|y|1| | | | |    q5--go backwards until a y or z, then one more.  To q2.
+;             ^
+;  | |0|1|0|y|1| | | | |    q2--go backwards to nearest number. To q3 if one, q4 if zero
+;           ^
+;  | |0|1|z|y|1| | | | |    q4--change to a z, then forward until a blank, add a 0, to q5
+;         ^
+;  | |0|1|z|y|1|0| | | |    repeat with q5-->q2-->q3/q4-->q5 until q5 hits a blank.  to q6
+;               ^
+;  | |z|y|z|y|1|0|1|0| |    q6--replace every z with 0 and y with 1 until it hits a number
+;     ^
+;  | |0|1|0|1|1|0|1|0| |    q7--return to beginning of string
+;             ^
+;  | |0|1|0|1|1|0|1|0| |
+;     ^
+
+
+(define tm-mirror (list
+                   '(q1 0 q1 0 r)
+                   '(q1 1 q1 1 r) ;  Goes forward to end of string
+                   '(q1 b q2 b l) 
+                   
+                   '(q2 y q2 y l) 
+                   '(q2 z q2 z l) 
+                   '(q2 1 q3 y r) ;  Goes left until 0 or 1
+                   '(q2 0 q2 z r) 
+                   '(q2 b q2 b l) 
+                   
+                   '(q3 1 q3 1 r)
+                   '(q3 0 q3 0 r) ;  Saves and deposits a 1
+                   '(q3 b q5 1 l)
+                   
+                   '(q4 1 q4 1 r)
+                   '(q4 0 q4 0 r) ;  Saves and deposits a 0
+                   '(q4 b q5 0 l)
+                   
+                   '(q5 1 q5 1 l)
+                   '(q5 0 q5 0 l)
+                   '(q5 y q2 y l) ;  Go left until y, z, or b
+                   '(q5 z q2 z l)
+                   '(q5 b q6 b r)
+                   
+                   '(q6 y q6 1 r)
+                   '(q6 z q6 0 r) ;  Replace y's and z's
+                   '(q6 0 q7 0 l)
+                   '(q6 1 q7 1 l)
+                   
+                   '(q1 0 q1 0 l)
+                   '(q1 1 q1 0 l) ;  Goes left until a blank.  Ends.
+ 
+                   ))
+                   
 
 ; ****************************************************************
 ; ** problem 2 (9 points)
