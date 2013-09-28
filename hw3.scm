@@ -2,8 +2,8 @@
 ; CS 201a HW #3  DUE by Wednesday, October 2, 11:59 pm
 ; using the submit command on the Zoo.
 ; ****************************************************************
-; Name:
-; Email address:
+; Name: Mikayla Thompson
+; Email address: mikayla.thompson@yale.edu
 ; ****************************************************************
 
 ; Unless the problem specifies otherwise:
