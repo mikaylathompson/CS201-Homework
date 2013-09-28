@@ -399,6 +399,16 @@
 ; (shift-head-right '(1 0 1 1 (q8))) => (1 0 1 1 b (q8))
 ; ****************************************************************
 
+; shift-head-left: find the spot before the head.  (list? (car (cdr config)))
+;                  add it to the front of the list, removing it from it's current spot.
+
+(define shift-head-left
+  (lambda (config)
+    (if  (list? (car (cdr config)))
+         (cons (car (cdr config)) (cons (car config) (cdr (cdr config))))
+         (cons (car config) (shift-head-left (cdr config))))))
+
+
 ; (Please replace this comment with your procedures.)
 
 ; ****************************************************************
