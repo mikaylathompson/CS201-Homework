@@ -496,7 +496,19 @@
 (define next-config
   (lambda (machine config)
     (if (halted? machine config)
-        config)))
+        config
+        (let ((instruction (i-lookup (c-state config) (c-symbol config) machine)))
+        (if (equal? (i-direction instruction) 'l)
+            (normalize 
+             (shift-head-left
+              (change-state (i-new-state instruction) 
+                            (write-symbol (i-new-symbol instruction) 
+                                          config))))
+            (normalize 
+             (shift-head-right 
+              (change-state (i-new-state instruction) 
+                            (write-symbol  (i-new-symbol instruction) 
+                              config)))))))))
         
 
 
