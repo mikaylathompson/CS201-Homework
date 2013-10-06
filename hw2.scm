@@ -61,16 +61,26 @@
 (define remove-leftmost
   (lambda (item list)
     (cond
-      ((null? list) '())
-      ((equal? (car list) item) (cdr list))
-      (else (cons (car list) (remove-leftmost item (cdr list)))))))
+      ((null? list) 
+       '())
+      ((equal? (car list) 
+               item) 
+       (cdr list))
+      (else 
+       (cons (car list) 
+             (remove-leftmost item (cdr list)))))))
 
 (define remove-all
   (lambda (item list)
     (cond
-      ((null? list) '())
-      ((equal? (car list) item) (remove-all item (cdr list)))
-      (else (cons (car list) (remove-all item (cdr list)))))))
+      ((null? list) 
+       '())
+      ((equal? (car list) 
+               item) 
+       (remove-all item (cdr list)))
+      (else 
+       (cons (car list) 
+             (remove-all item (cdr list)))))))
 
 ;**************************************************************
 ; ** problem 2 ** (10 points)
@@ -93,10 +103,12 @@
 
 (define filter
   (lambda (pred? list)
-    (if (equal? list '())
+    (if (equal? list 
+                '())
         '()
         (if (pred? (car list))
-            (cons (car list) (filter pred? (cdr list)))
+            (cons (car list) 
+                  (filter pred? (cdr list)))
             (filter pred? (cdr list))))))
 
 ;**************************************************************
@@ -129,7 +141,8 @@
     (if (null? list)
         '()
         (cons (car list) 
-              (remove-duplicates (remove-all (car list) (cdr list)))))))
+              (remove-duplicates (remove-all (car list) 
+                                             (cdr list)))))))
 
 
 ;**************************************************************
@@ -275,7 +288,8 @@
   (lambda (list)
     (if (null? list)
         0
-        (+ (car list) (sum-of (cdr list))))))
+        (+ (car list) 
+           (sum-of (cdr list))))))
 
 (define pick-random
   (lambda (list)
@@ -284,10 +298,11 @@
 (define roll
   (lambda (dice)
     (cond
-      ((null? dice) 0)
-      (else (sum-of 
-             (list (pick-random (car dice)) 
-                   (roll (cdr dice))))))))
+      ((null? dice) 
+       0)
+      (else 
+       (sum-of (list (pick-random (car dice)) 
+                     (roll (cdr dice))))))))
 
 ;**************************************************************
 ; ** problem 5 ** (10 points)
@@ -350,16 +365,19 @@
 (define ok-move?
   (lambda (move state)
     (cond
-      ((null? move) #t)
+      ((null? move) 
+       #t)
       ((includes? state (car move)) 
-       (ok-move? (cdr move) (remove-leftmost (car move) state)))
+       (ok-move? (cdr move) 
+                 (remove-leftmost (car move) state)))
       (else #f))))
     
 (define make-move
   (lambda (move state)
     (if (null? move)
         state
-        (make-move (cdr move) (remove-leftmost (car move) state)))))
+        (make-move (cdr move) 
+                   (remove-leftmost (car move) state)))))
 
 
 ;**************************************************************
@@ -402,7 +420,8 @@
         '( () )
         (remove-duplicates (append
                             (all-moves (cdr state))
-                            (join-to (car state) (all-moves (cdr state))))))))
+                            (join-to (car state) 
+                                     (all-moves (cdr state))))))))
 
 
 
@@ -441,9 +460,8 @@
     
 (define possible-moves
   (lambda (sum state)
-    (filter (lambda (move) (and 
-                            (equal? sum (sum-of move))
-                            (ok-move? move state)))
+    (filter (lambda (move) (and (equal? sum (sum-of move))
+                                (ok-move? move state)))
             (all-moves state))))    
 
 ; get-states takes in a list of moves, applies each of 
@@ -518,10 +536,12 @@
     (if (equal? 1 (length lst))
         (car lst)
         (cond
-          ((< (length (car lst)) (length (shortest-element (cdr lst))))
-            (car lst))
-          ((> (length (car lst)) (length (shortest-element (cdr lst))))
-            (shortest-element (cdr lst)))
+          ((< (length (car lst)) 
+              (length (shortest-element (cdr lst))))
+           (car lst))
+          ((> (length (car lst)) 
+              (length (shortest-element (cdr lst))))
+           (shortest-element (cdr lst)))
           (else (if (equal? 0 (random-integer 2))
                     (car lst)
                     (shortest-element (cdr lst))))))))
@@ -529,7 +549,8 @@
 
 (define choose-short-move
   (lambda (sum state)
-    (if (equal? 0 (length (possible-moves sum state)))
+    (if (equal? 0 
+                (length (possible-moves sum state)))
         'none
         (shortest-element (possible-moves sum state)))))
 
@@ -593,11 +614,10 @@
 
 
 (define play
-  (lambda (player 
-           flaps 
-           dice)
+  (lambda (player flaps dice)
     (let ((next (player (roll dice) flaps)))
-    (if (equal? next 'none)
+    (if (equal? next 
+                'none)
         (sum-of flaps)
         (play player
               (make-move next flaps)
@@ -677,11 +697,14 @@
     (if (equal? 1 (length lst))
         (car lst)
         (cond
-          ((> (length (car lst)) (length (longest-element (cdr lst))))
-            (car lst))
-          ((< (length (car lst)) (length (longest-element (cdr lst))))
-            (longest-element (cdr lst)))
-          (else (if (equal? 0 (random-integer 2))
+          ((> (length (car lst)) 
+              (length (longest-element (cdr lst))))
+           (car lst))
+          ((< (length (car lst)) 
+              (length (longest-element (cdr lst))))
+           (longest-element (cdr lst)))
+          (else (if (equal? 0 
+                            (random-integer 2))
                     (car lst)
                     (longest-element (cdr lst))))))))
 
@@ -689,7 +712,8 @@
 ; It plays very poorly (only winning 2 of 10 games against short-move)
 (define choose-long-move
   (lambda (sum state)
-    (if (equal? 0 (length (possible-moves sum state)))
+    (if (equal? 0 
+                (length (possible-moves sum state)))
         'none
         (longest-element (possible-moves sum state)))))
 
@@ -699,7 +723,8 @@
   (lambda (list target)
     (if (equal? '() list)
         #f
-        (or (equal? (car list) target)
+        (or (equal? (car list) 
+                    target)
             (includes? (cdr list) target)))))
 
 
