@@ -95,9 +95,7 @@
          (else
           (b-or (cdr (car args))))))
       (else
-       (if (equal? 1 (car args))
-           1
-           (b-or (cdr args)))))))
+       (b-or args)))))
               
       
 (define b-and
@@ -112,10 +110,8 @@
                0
                (b-and (cdr (car args))))))
       (else
-       (if (equal? 0 (car args))
-           0
-           (b-and (cdr args)))))))
-
+       (b-and args)))))
+ 
 
 ; ****************************************************************
 ; We recursively define a representation of Boolean Expressions:
@@ -199,6 +195,34 @@
 ; (type-of '(+ (* x 0) (* x 1))) => or
 ; (type-of '(* (- 0) (- 1))) => and
 ; ****************************************************************
+
+(define boolean-exp?
+  (lambda (exp)
+    (if (not (list? exp))
+        (if (or (equal? exp 0)
+                (equal? exp 1)
+                (symbol? exp))
+            #t
+            #f)
+        (cond
+          ((or (equal? '* (car exp)) (equal? '+ (car exp)))
+           (if (= 2 (length (cdr exp)))
+               (and (boolean-exp? (list-ref exp 1))
+                    (boolean-exp? (list-ref exp 2)))
+               #f))
+          ((equal? '- (car exp))
+           (if (= 1 (length (cdr exp)))
+               (boolean-exp? (list-ref exp 1))
+               #f))
+          (else #f)))))
+
+ (boolean-exp? 0); => #t
+ (boolean-exp? 2) ;=> #f
+ (boolean-exp? '(* x)); => #f
+ (boolean-exp? '(- 0)); => #t
+ (boolean-exp? '(* x (+ 0 (- 1)))); => #t
+ (boolean-exp? '(+ x y z)); => #t
+ (boolean-exp? '(-> x y)); => #f
 
 
 ; ****************************************************************
