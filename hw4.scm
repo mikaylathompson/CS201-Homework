@@ -300,7 +300,58 @@
 ; (all-vars '(* c (* b (* c a) b) c)) => (c b a)
 ; ****************************************************************
 
+; remove-all function from hw2.scm
+(define remove-all
+  (lambda (item list)
+    (cond
+      ((null? list) 
+       '())
+      ((equal? (car list) 
+               item) 
+       (remove-all item (cdr list)))
+      (else 
+       (cons (car list) 
+             (remove-all item (cdr list)))))))
+; remove-duplicates function from hw2.scm
+(define remove-duplicates
+  (lambda (list)
+    (if (null? list)
+        '()
+        (cons (car list) 
+              (remove-duplicates (remove-all (car list) 
+                                             (cdr list)))))))
+; flatten turns a nested list into a flat one
+(define flatten
+  (lambda (lst)
+    (cond
+      ((null? lst) '())
+      ((list? (car lst))
+       (append (flatten (car lst)) (flatten (cdr lst))))
+      (else 
+       (cons (car lst) (flatten (cdr lst)))))))
 
+;(flatten '(3 (4 5) 6))
+
+(define all-vars
+  (lambda (exp)
+    (cond
+      ((null? exp) '())
+      ((list? exp)
+       (if (or (equal? (type-of exp) 'and)
+               (equal? (type-of exp) 'or)
+               (equal? (type-of exp) 'not))
+           (remove-duplicates (flatten (map all-vars (cdr exp))))
+           (remove-duplicates (flatten (cons (all-vars (car exp)) (all-vars (cdr exp)))))))
+      ((equal? (type-of exp) 'constant) '())
+      ((equal? (type-of exp) 'variable) exp)
+      (else '()))))
+    
+
+ (all-vars 0); => ()
+ (all-vars '(- (* x y (+ x z)))); => (x y z)
+ (all-vars '(* 1 (+ 0 1) (- u))); => (u)
+ (all-vars '(* x y x y x)); => (x y)
+ (all-vars '(* c (* b (* c a) b) c)); => (c b a)
 ; ****************************************************************
 ; ** problem 4 ** (10 points)
 ; Write a procedure
