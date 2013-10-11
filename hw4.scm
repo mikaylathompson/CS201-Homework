@@ -81,6 +81,25 @@
         1
         0)))
 
+(define b-or
+  (lambda args
+    (cond
+      ((null? args)
+       0)
+      ((list? (car args))
+       (cond
+         ((null? (car args))
+          0)
+         ((equal? 1 (car (car args)))
+           1)
+         (else
+          (b-or (cdr (car args))))))
+      (else
+       (if (equal? 1 (car args))
+           1
+           (b-or (cdr args)))))))
+              
+      
 (define b-and
   (lambda args
     (cond
