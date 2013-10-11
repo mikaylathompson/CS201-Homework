@@ -256,6 +256,27 @@
 ; (boolean-exp? '(-> x y)); => #f
 
 
+(define type-of
+  (lambda (exp)
+    (if (list? exp)
+        (cond
+          ((equal? (car exp) '-) 'not)
+          ((equal? (car exp) '+) 'or)
+          ((equal? (car exp) '*) 'and)
+          (else 'error))
+        (cond
+          ((equal? exp 0) 'constant)
+          ((equal? exp 1) 'constant)
+          ((symbol? exp) 'variable)
+          (else 'error)))))
+    
+    
+; (type-of 0) ;=> constant
+; (type-of 'hi) ;=> variable
+; (type-of '(- 0)) ;=> not
+; (type-of '(+ (* x 0) (* x 1))) ;=> or
+; (type-of '(* (- 0) (- 1))) ;=> and
+
 ; ****************************************************************
 ; ** problem 3 ** (10 points)
 ; Write a procedure
