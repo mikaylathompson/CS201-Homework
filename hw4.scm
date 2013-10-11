@@ -133,14 +133,14 @@
            1
            0)))))
  
- (b-not 0); => 1
- (b-not 1); => 0
- (b-or); => 0
- (b-or 0 0); => 0
- (b-or 0 0 1 0 1); => 1
- (b-and 1 1); => 1
- (b-and); => 1
- (b-and 1 0 1); => 0
+; (b-not 0); => 1
+; (b-not 1); => 0
+; (b-or); => 0
+; (b-or 0 0); => 0
+; (b-or 0 0 1 0 1); => 1
+; (b-and 1 1); => 1
+; (b-and); => 1
+; (b-and 1 0 1); => 0
 
 
 ; ****************************************************************
@@ -238,23 +238,22 @@
             #f)
         (cond
           ((or (equal? '* (car exp)) (equal? '+ (car exp)))
-           (if (= 2 (length (cdr exp)))
-               (and (boolean-exp? (list-ref exp 1))
-                    (boolean-exp? (list-ref exp 2)))
+           (if (<= 2 (length (cdr exp)))
+               (and-list (map boolean-exp? (cdr exp)))
                #f))
           ((equal? '- (car exp))
            (if (= 1 (length (cdr exp)))
-               (boolean-exp? (list-ref exp 1))
+               (boolean-exp? (cadr exp))
                #f))
           (else #f)))))
 
- (boolean-exp? 0); => #t
- (boolean-exp? 2) ;=> #f
- (boolean-exp? '(* x)); => #f
- (boolean-exp? '(- 0)); => #t
- (boolean-exp? '(* x (+ 0 (- 1)))); => #t
- (boolean-exp? '(+ x y z)); => #t
- (boolean-exp? '(-> x y)); => #f
+; (boolean-exp? 0); => #t
+; (boolean-exp? 2) ;=> #f
+; (boolean-exp? '(* x)); => #f
+; (boolean-exp? '(- 0)); => #t
+; (boolean-exp? '(* x (+ 0 (- 1)))); => #t
+; (boolean-exp? '(+ x y z)); => #t
+; (boolean-exp? '(-> x y)); => #f
 
 
 ; ****************************************************************
