@@ -81,37 +81,67 @@
         1
         0)))
 
+
+; and-list takes a list and returns #t if all elements are 1 or #t.
+
+; or-list takes a list and returns #t if any elements are 1 or #t
+
+(define and-list
+  (lambda (lst)
+    (if (null? lst)
+        #t
+        (if (or (equal? #t (car lst)) 
+                (equal? 1 (car lst)))
+            (and-list (cdr lst))
+            #f))))
+
+(define or-list
+  (lambda (lst)
+    (if (null? lst)
+        #f
+        (if (or (equal? #t (car lst)) 
+                (equal? 1 (car lst)))
+            #t
+            (or-list (cdr lst))))))
+
 (define b-or
   (lambda args
     (cond
       ((null? args)
        0)
       ((list? (car args))
-       (cond
-         ((null? (car args))
-          0)
-         ((equal? 1 (car (car args)))
-           1)
-         (else
-          (b-or (cdr (car args))))))
+       (if (or-list (car args))
+           1
+           0))
       (else
-       (b-or args)))))
+       (if (or-list args)
+           1
+           0)))))
               
       
 (define b-and
   (lambda args
     (cond
-      ((null? args) 
+      ((null? args)
        1)
       ((list? (car args))
-       (if (null? (car args))
+       (if (and-list (car args))
            1
-           (if (equal? 0 (car (car args)))
-               0
-               (b-and (cdr (car args))))))
+           0))
       (else
-       (b-and args)))))
+       (if (and-list args)
+           1
+           0)))))
  
+ (b-not 0); => 1
+ (b-not 1); => 0
+ (b-or); => 0
+ (b-or 0 0); => 0
+ (b-or 0 0 1 0 1); => 1
+ (b-and 1 1); => 1
+ (b-and); => 1
+ (b-and 1 0 1); => 0
+
 
 ; ****************************************************************
 ; We recursively define a representation of Boolean Expressions:
@@ -195,6 +225,8 @@
 ; (type-of '(+ (* x 0) (* x 1))) => or
 ; (type-of '(* (- 0) (- 1))) => and
 ; ****************************************************************
+
+
 
 (define boolean-exp?
   (lambda (exp)
