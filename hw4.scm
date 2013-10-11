@@ -9,7 +9,7 @@
 ; Please modify the following definition to reflect the number of
 ; hours you spent on this assignment.
 
-(define hours 0)
+(define hours 2)
 
 ; ****************************************************************
 ; Unless the problem specifies otherwise:
@@ -74,6 +74,13 @@
 ; (b-and) => 1
 ; (b-and 1 0 1) => 0
 ; ****************************************************************
+
+(define b-not
+  (lambda (arg)
+    (if (= arg 0)
+        1
+        0)))
+
 
 
 ; ****************************************************************
