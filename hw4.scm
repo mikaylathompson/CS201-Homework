@@ -347,11 +347,11 @@
       (else '()))))
     
 
- (all-vars 0); => ()
- (all-vars '(- (* x y (+ x z)))); => (x y z)
- (all-vars '(* 1 (+ 0 1) (- u))); => (u)
- (all-vars '(* x y x y x)); => (x y)
- (all-vars '(* c (* b (* c a) b) c)); => (c b a)
+; (all-vars 0); => ()
+; (all-vars '(- (* x y (+ x z)))); => (x y z)
+; (all-vars '(* 1 (+ 0 1) (- u))); => (u)
+; (all-vars '(* x y x y x)); => (x y)
+; (all-vars '(* c (* b (* c a) b) c)); => (c b a)
 ; ****************************************************************
 ; ** problem 4 ** (10 points)
 ; Write a procedure
@@ -376,7 +376,29 @@
 ; (substitute-in '(- (+ x y x)) 'x 1) => (- (+ 1 y 1))
 ; ****************************************************************
 
+; includes? takes a list and a target.  It returns true
+; if target is a top level element of list. (from hw1)
+(define includes?
+  (lambda (list target)
+    (if (equal? '() list)
+        #f
+        (or (equal? (car list) 
+                    target)
+            (includes? (cdr list) target)))))
 
+(define substitute-in
+  (lambda (exp var value)
+    (if (not (includes? (all-vars exp) var))
+        exp
+        (#f))))
+        
+ 
+ (substitute-in 0 'x 1) ;=> 0
+ (substitute-in 'x 'x 1) ;=> 1
+ (substitute-in 'x 'y 0) ;=> x
+ (substitute-in '(* x y) 'y 0) ;=> (* x 0)
+ (substitute-in '(+ (* (- x) y) (* x (- y))) 'x 0) ;=> (+ (* (- 0) y) (* 0 (- y)))
+ (substitute-in '(- (+ x y x)) 'x 1) ;=> (- (+ 1 y 1))
 ; ****************************************************************
 ; We represent an environment as table  consisting of
 ; a list of two-element lists, each containing a variable 
