@@ -388,9 +388,18 @@
 
 (define substitute-in
   (lambda (exp var value)
-    (if (not (includes? (all-vars exp) var))
+    (if (and (list? exp) (not (includes? (all-vars exp) var)))
         exp
-        (#f))))
+        (cond
+          ((not (list? exp))
+           (if (equal? exp var)
+               value
+               exp))
+          ((null? exp)
+           '())
+          (else
+           (cons (substitute-in (car exp) var value)
+                 (substitute-in (cdr exp) var value)))))))
         
  
  (substitute-in 0 'x 1) ;=> 0
