@@ -467,6 +467,17 @@
                 (subsequence? l1 (cdr l2)))))))
 
 ; b-eval takes a boolean function with only numbers and evaluates it.
+(define b-eval
+  (lambda (exp)
+    (cond
+      ((equal? (type-of exp) 'constant)
+       exp)
+      ((equal? (type-of exp) 'not)
+       (b-not (b-eval (cadr exp))))
+      ((equal? (type-of exp) 'and)
+       (apply b-and (map b-eval (cdr exp))))
+      ((equal? (type-of exp) 'or)
+       (apply b-or (map b-eval (cdr exp)))))))
 
 
 ; sub-all takes an expression and an environment and substitutes in all variables.
@@ -479,26 +490,34 @@
                        (car (cdr (car env)))))))
 
 
+
 (define eval-in-env
   (lambda (exp env)
-    (if (list? exp)
-        (let ((vars-used (all-vars exp)) (vars-defined (all-vars env)))
-          (if (not (subsequence? vars-used vars-defined))
-              'unspecified-variable
-              #f))))) 
+    (let ((vars-used (if (list? (all-vars exp))
+                         (all-vars exp)
+                         (list (all-vars exp))))
+          (vars-defined (if (list? (all-vars env))
+                            (all-vars env)
+                            (list (all-vars env)))))
+      (display (list vars-used vars-defined))
+      (display (list exp (all-vars exp)))
+      (if (not (or (subsequence? vars-used vars-defined)
+                   (subsequence? vars-used (reverse vars-defined))))
+          'unspecified-variable
+          (b-eval (sub-all exp env))))))
 
 
 
- (eval-in-env 1 environ1); => 1
- (eval-in-env '(+ 0 0) '()); => 0
- (eval-in-env 'x environ1); => 0
- (eval-in-env 'x environ2); => 1
- (eval-in-env '(- z) environ1); => 1
- (eval-in-env '(- z) environ2); => 0
- (eval-in-env '(+ y (- x)) environ2); => 0
- (eval-in-env '(* (* (+ u x) (+ w 0)) (- (* y z))) environ2); => 1
- (eval-in-env exp5 environ1); => 0
- (eval-in-env '(* y (+ x u)) '((x 0) (y 1))); => unspecified-variable
+; (eval-in-env 1 environ1); => 1
+; (eval-in-env '(+ 0 0) '()); => 0
+; (eval-in-env 'x environ1); => 0
+; (eval-in-env 'x environ2); => 1
+; (eval-in-env '(- z) environ1); => 1
+; (eval-in-env '(- z) environ2); => 0
+; (eval-in-env '(+ y (- x)) environ2); => 0
+; (eval-in-env '(* (* (+ u x) (+ w 0)) (- (* y z))) environ2); => 1
+; (eval-in-env exp5 environ1); => 0
+; (eval-in-env '(* y (+ x u)) '((x 0) (y 1))); => unspecified-variable
 
 
 ; ****************************************************************
