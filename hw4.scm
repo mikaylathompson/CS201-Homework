@@ -830,7 +830,11 @@
 
 (define products
   (lambda (tt)
-    ))
+    (let ((lst (pos-envs tt)))
+      (cond
+        ((null? lst) '0)
+        (
+      
     
   
 ; pos-envs goes through a truth table to find environments where the result is 1
@@ -841,13 +845,13 @@
         ((null? tt-body) '())
         ((equal? 1 (cadar tt-body))
          (cons (make-env tt-vars (caar tt-body))
-               (products (list tt-vars (cdr tt-body)))))
+               (pos-envs (list tt-vars (cdr tt-body)))))
         (else
-         (products (list tt-vars (cdr tt-body))))))))
+         (pos-envs (list tt-vars (cdr tt-body))))))))
   
 
-(products tt-and)
-(products tt-xor)
+(pos-envs tt-and)
+(pos-envs tt-xor)
 
 (define find-exp
   (lambda (tt)
