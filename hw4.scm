@@ -842,26 +842,26 @@
 ;(pos-envs tt-xor)
 
 
-; make-and takes and environment and gives components of the and statement that defines it
+; products takes and environment and gives components of the and statement that defines it
 ; ex; ((x 0) (y 1) (z 1)) --> ((- x) y z))
-(define make-and
+(define products
   (lambda (env)
     (if (null? env)
         '()
         (cons (if (equal? (cadar env) 1)
                   (caar env)
                   (list '- (caar env)))
-              (make-and (cdr env)))))) 
-;(make-and '((x 0) (y 1) (z 1)))
+              (products (cdr env)))))) 
+;(products '((x 0) (y 1) (z 1)))
 
 ;make-or combines the and statements for each good environment.
-(define make-or
+(define sums
   (lambda (good-envs)
     (if (null? good-envs)
         '()
         (cons
-         (cons '* (make-and (car good-envs)))
-         (make-or (cdr good-envs))))))
+         (cons '* (products (car good-envs)))
+         (sums (cdr good-envs))))))
 
 ;(make-or (pos-envs tt-and))
 ;(make-or (pos-envs tt-xor))
@@ -875,17 +875,17 @@
 
 (define find-exp
   (lambda (tt)
-    (let ((ors (make-or (pos-envs tt))))
+    (let ((ors (sums (pos-envs tt))))
       (if (equal? (length ors) 1)
           (car ors)
           (cons '+ ors)))))
 
 
-; (boolean-exp? (find-exp tt-and)) ;=> #t
-; (equal? tt-and (truth-table (find-exp tt-and))) ;=> #t
-; (equal? tt-imp (truth-table (find-exp tt-imp))) ;=> #t
-; (equal? tt-xor (truth-table (find-exp tt-xor))) ;=> #t
-; (equal? tt-f1 (truth-table (find-exp tt-f1))) ;=> #t
+ (boolean-exp? (find-exp tt-and)) ;=> #t
+ (equal? tt-and (truth-table (find-exp tt-and))) ;=> #t
+ (equal? tt-imp (truth-table (find-exp tt-imp))) ;=> #t
+ (equal? tt-xor (truth-table (find-exp tt-xor))) ;=> #t
+ (equal? tt-f1 (truth-table (find-exp tt-f1))) ;=> #t
 
 ; ****************************************************************
 ; ** problem 10 ** (10 points)
