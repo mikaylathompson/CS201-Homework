@@ -378,19 +378,17 @@
 
 ; includes? takes a list and a target.  It returns true
 ; if target is a top level element of list. (from hw1)
-(define includes?
-  (lambda (list target)
-    (if (equal? '() list)
-        #f
-        (or (equal? (car list) 
-                    target)
-            (includes? (cdr list) target)))))
+;(define includes?
+;  (lambda (list target)
+;    (if (equal? '() list)
+;        #f
+;        (or (equal? (car list) 
+;                    target)
+;            (includes? (cdr list) target)))))
 
 (define substitute-in
   (lambda (exp var value)
-    (if (not (includes? (all-vars exp) var))
-        exp
-        (#f))))
+    ()))
         
  
  (substitute-in 0 'x 1) ;=> 0
