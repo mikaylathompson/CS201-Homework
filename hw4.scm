@@ -922,6 +922,31 @@
 ; ****************************************************************
 
 
+(define simplify
+  (lambda (exp)
+    (cond
+      ((equal? (type-of exp) 'constant) exp)
+      ;((equal? (type-of exp) 'not) (simplify (cadr exp)))
+      ((equal? (type-of exp) 'or)
+       (if (contains? 1 (map simplify (cdr exp)))
+           1
+           exp))
+      ((equal? (type-of exp) 'and)
+       (if (contains? 0 (map simplify (cdr exp)))
+           0
+           exp))
+      (else exp))))
+
+
+ (simplify 0) ;=> 0
+ (simplify '(- 0)) ;=> 1
+ (simplify '(* 1 0 1)) ;=> 0
+ (simplify '(+ x 0 y 0)) ;=> (+ x y)
+ (simplify '(+ 1 z)) ;=> 1
+ (simplify '(- (* x (- 0)))) ;=> (- x)
+ (simplify '(- (+ (- x) x))) ;=> (- (+ (- x) x))
+ (simplify '(+ (* x 0) (* y (- 1)))) ;=> 0
+
 ; ****************************************************************
 ; See if you can figure out what the following procedure is doing.
 ; Think about how to improve it.
