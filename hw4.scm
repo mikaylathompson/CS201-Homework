@@ -455,16 +455,25 @@
 ; (eval-in-env '(* y (+ x u)) '((x 0) (y 1))) => unspecified-variable
 ; ****************************************************************
 
-; Subsequence from hw1.  Returns #t if lst1 is contained in lst2.
+; contains returns true if item is a top level element in lst
+(define contains?
+  (lambda (item lst)
+    (cond
+      ((null? lst) #f)
+      ((equal? item (car lst)) #t)
+      (else (contains? item (cdr lst))))))
+    
+
+; Subsequence from hw1.  Returns #t if lst1 is contained in lst2.  With 
+; modifications so that order doesn't matter.
 (define subsequence?
   (lambda (l1 l2)
     (cond 
-      ((> (length l1) (length l2)) #f)
       ((equal? l1 l2) #t)
       ((equal? l1 '()) #t)
-      (else (if (equal? (car l1) (car l2))
-                (subsequence? (cdr l1) (cdr l2))
-                (subsequence? l1 (cdr l2)))))))
+      (else (if (contains? (car l1) l2)
+                (subsequence? (cdr l1) l2)
+                #f)))))
 
 ; b-eval takes a boolean function with only numbers and evaluates it.
 (define b-eval
@@ -499,8 +508,7 @@
           (vars-defined (if (list? (all-vars env))
                             (all-vars env)
                             (list (all-vars env)))))
-      (if (not (or (subsequence? vars-used vars-defined)
-                   (subsequence? vars-used (reverse vars-defined))))
+      (if (not (subsequence? vars-used vars-defined))
           'unspecified-variable
           (b-eval (sub-all exp env))))))
 
@@ -749,6 +757,51 @@
 ; (equivalent? '(+ x (+ y z)) '(+ (+ y x) (+ z 0))) => #t
 ; (equivalent? '(+ x (* y z)) '(* (+ x y) (+ x z))) => #t
 ; ****************************************************************
+
+; tt-results is a list of all results of a truth table
+(define tt-results
+  (lambda (tt)
+    (map cadr (cadr tt))))
+
+;(tt-results '((x) (((0) 0) ((1) 1))))
+;(tt-results '((x y) (((0 0) 0) ((0 1) 0) ((1 0) 0) ((1 1) 1))))
+
+
+(define satisfiable?
+  (lambda (exp)
+    (if (equal? 1 (apply b-or (tt-results (truth-table exp))))
+        #t
+        #f)))
+
+(define equivalent?
+  (lambda (exp1 exp2)
+    (let ((tt1 (truth-table exp1))
+          (tt2 (truth-table exp2)))
+    (if (equal? tt1 tt2)
+        #t
+        (cond
+          ((and (subsequence? (car tt1) (car tt2)) ; case where the variables are listed
+                (subsequence? (car tt2) (car tt1)) ; in a different order
+                (equal? (tt-results tt1)      
+                        (tt-results tt2)))
+           #t)
+          ((apply = (append (tt-results tt1)   ; if all the elements of the truth
+                            (tt-results tt2))) ; tables are the same (all 0s or all 1s)
+           #t)
+          (else #f))))))
+
+
+; (satisfiable? 0); => #f
+; (satisfiable? 1) ;=> #t
+; (satisfiable? '(* x (* y z))) ;=> #t
+; (satisfiable? '(* x (* (- y) y))) ;=> #f
+; (satisfiable? '(* (+ v (- v)) 0)) ;=> #f
+; (equivalent? 0 '(* a (- a))) ;=> #t
+; (equivalent? 1 '(+ a (- a))) ;=> #t
+; (equivalent? 0 'a) ;=> #f
+; (equivalent? 'a 'b) ;=> #f
+; (equivalent? '(+ x (+ y z)) '(+ (+ y x) (+ z 0))) ;=> #t
+; (equivalent? '(+ x (* y z)) '(* (+ x y) (+ x z))) ;=> #t
 
 
 ; ****************************************************************
