@@ -868,23 +868,24 @@
   
 
 
+
+; My find-exp uses sum of products.  It searches through the truth table for any
+; positive results and turns that set of values into an and statement.  All of the
+; and statements are concatenated into an or statement that defines the expression.
+
 (define find-exp
   (lambda (tt)
-    (cond
-      ((equivalent? (tt-results tt) '(0)) '0)
-      ((equivalent? (tt-results tt) '(1)) '1)
-      (else
-       (cons '+ (make-or (pos-envs tt)))))))
-
-(find-exp tt-and)
-(find-exp tt-xor)
+    (let ((ors (make-or (pos-envs tt))))
+      (if (equal? (length ors) 1)
+          (car ors)
+          (cons '+ ors)))))
 
 
- (boolean-exp? (find-exp tt-and)) ;=> #t
- (equal? tt-and (truth-table (find-exp tt-and))) ;=> #t
- (equal? tt-imp (truth-table (find-exp tt-imp))) ;=> #t
- (equal? tt-xor (truth-table (find-exp tt-xor))) ;=> #t
- (equal? tt-f1 (truth-table (find-exp tt-f1))) ;=> #t
+; (boolean-exp? (find-exp tt-and)) ;=> #t
+; (equal? tt-and (truth-table (find-exp tt-and))) ;=> #t
+; (equal? tt-imp (truth-table (find-exp tt-imp))) ;=> #t
+; (equal? tt-xor (truth-table (find-exp tt-xor))) ;=> #t
+; (equal? tt-f1 (truth-table (find-exp tt-f1))) ;=> #t
 
 ; ****************************************************************
 ; ** problem 10 ** (10 points)
