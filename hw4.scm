@@ -9,7 +9,7 @@
 ; Please modify the following definition to reflect the number of
 ; hours you spent on this assignment.
 
-(define hours 2)
+(define hours 7)
 
 ; ****************************************************************
 ; Unless the problem specifies otherwise:
