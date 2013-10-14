@@ -499,8 +499,6 @@
           (vars-defined (if (list? (all-vars env))
                             (all-vars env)
                             (list (all-vars env)))))
-      (display (list vars-used vars-defined))
-      (display (list exp (all-vars exp)))
       (if (not (or (subsequence? vars-used vars-defined)
                    (subsequence? vars-used (reverse vars-defined))))
           'unspecified-variable
@@ -666,15 +664,55 @@
         (cons (list (car vars) (car vals))
               (make-env (cdr vars) (cdr vals))))))
 
-(make-env '(x y z) '(0 1 0))
+; (make-env '(x y z) '(0 1 0))
 
+; truth-table-row creates a single row of a truth table by listing the values
+; of the variables and the value of the expression at.
+(define truth-table-row
+  (lambda (env exp)
+    (list (map cadr env)
+          (eval-in-env exp env))))
+
+;(truth-table-row '((x 0) (y 1) (z 0)) '(* x (+ y z)))
+
+
+; body-of-table builds the body of the truth table, with each combo of variable values
+; and the result of applying those substitutions to the expression
+(define body-of-table
+  (lambda (combos exp)
+    (if (null? combos)
+        '()
+        (cons (truth-table-row (make-env (if (list? (all-vars exp))
+                         (all-vars exp)
+                         (list (all-vars exp))) (car combos))
+                               exp)
+              (body-of-table (cdr combos)
+                             exp)))))
+
+; (body-of-table '((0 0) (0 1) (1 0) (1 1)) '(* x y))
 
 (define truth-table
   (lambda (exp)
     (let ((vars-used (if (list? (all-vars exp))
-              (all-vars exp)
-              (list (all-vars exp))))
-          (length 
+                         (all-vars exp)
+                         (list (all-vars exp)))))
+      (list vars-used (body-of-table (all-combs (length vars-used)) exp)))))
+
+; (truth-table  0) ;=> (() ((() 0)))
+; (truth-table 'x) ;=> ((x) (((0) 0) ((1) 1)))
+; (truth-table '(- z)) ;=> ((z) (((0) 1) ((1) 0)))
+; (truth-table '(* x y)) ;=> ((x y) (((0 0) 0) ((0 1) 0) ((1 0) 0) ((1 1) 1)))
+; (truth-table '(+ (* z (- y)) (* y (- x)))); => 
+; ((z y x)
+;  (((0 0 0) 0)
+;   ((0 0 1) 0)
+;   ((0 1 0) 1)
+;   ((0 1 1) 0)
+;   ((1 0 0) 1)
+;   ((1 0 1) 1)
+;   ((1 1 0) 1)
+;   ((1 1 1) 0)))
+
 
 
 ; ****************************************************************
