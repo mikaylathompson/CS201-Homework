@@ -9,7 +9,7 @@
 ; Please modify the following definition to reflect the number of
 ; hours you spent on this assignment.
 
-(define hours 2)
+(define hours 7)
 
 ; ****************************************************************
 ; Unless the problem specifies otherwise:
@@ -388,15 +388,30 @@
 
 (define substitute-in
   (lambda (exp var value)
+<<<<<<< HEAD
     ()))
+=======
+    (if (and (list? exp) (not (includes? (all-vars exp) var)))
+        exp
+        (cond
+          ((not (list? exp))
+           (if (equal? exp var)
+               value
+               exp))
+          ((null? exp)
+           '())
+          (else
+           (cons (substitute-in (car exp) var value)
+                 (substitute-in (cdr exp) var value)))))))
+>>>>>>> b04b744a2bc2de3b7638abc57ab167b964fadd96
         
  
- (substitute-in 0 'x 1) ;=> 0
- (substitute-in 'x 'x 1) ;=> 1
- (substitute-in 'x 'y 0) ;=> x
- (substitute-in '(* x y) 'y 0) ;=> (* x 0)
- (substitute-in '(+ (* (- x) y) (* x (- y))) 'x 0) ;=> (+ (* (- 0) y) (* 0 (- y)))
- (substitute-in '(- (+ x y x)) 'x 1) ;=> (- (+ 1 y 1))
+; (substitute-in 0 'x 1) ;=> 0
+; (substitute-in 'x 'x 1) ;=> 1
+; (substitute-in 'x 'y 0) ;=> x
+; (substitute-in '(* x y) 'y 0) ;=> (* x 0)
+; (substitute-in '(+ (* (- x) y) (* x (- y))) 'x 0) ;=> (+ (* (- 0) y) (* 0 (- y)))
+; (substitute-in '(- (+ x y x)) 'x 1) ;=> (- (+ 1 y 1))
 ; ****************************************************************
 ; We represent an environment as table  consisting of
 ; a list of two-element lists, each containing a variable 
@@ -443,6 +458,76 @@
 ; (eval-in-env exp5 environ1) => 0
 ; (eval-in-env '(* y (+ x u)) '((x 0) (y 1))) => unspecified-variable
 ; ****************************************************************
+
+; contains returns true if item is a top level element in lst
+(define contains?
+  (lambda (item lst)
+    (cond
+      ((null? lst) #f)
+      ((equal? item (car lst)) #t)
+      (else (contains? item (cdr lst))))))
+    
+
+; Subsequence from hw1.  Returns #t if lst1 is contained in lst2.  With 
+; modifications so that order doesn't matter.
+(define subsequence?
+  (lambda (l1 l2)
+    (cond 
+      ((equal? l1 l2) #t)
+      ((equal? l1 '()) #t)
+      (else (if (contains? (car l1) l2)
+                (subsequence? (cdr l1) l2)
+                #f)))))
+
+; b-eval takes a boolean function with only numbers and evaluates it.
+(define b-eval
+  (lambda (exp)
+    (cond
+      ((equal? (type-of exp) 'constant)
+       exp)
+      ((equal? (type-of exp) 'not)
+       (b-not (b-eval (cadr exp))))
+      ((equal? (type-of exp) 'and)
+       (apply b-and (map b-eval (cdr exp))))
+      ((equal? (type-of exp) 'or)
+       (apply b-or (map b-eval (cdr exp)))))))
+
+
+; sub-all takes an expression and an environment and substitutes in all variables.
+(define sub-all
+  (lambda (exp env)
+    (if (null? env)
+        exp
+        (substitute-in (sub-all exp (cdr env))
+                       (car (car env))
+                       (car (cdr (car env)))))))
+
+
+
+(define eval-in-env
+  (lambda (exp env)
+    (let ((vars-used (if (list? (all-vars exp))
+                         (all-vars exp)
+                         (list (all-vars exp))))
+          (vars-defined (if (list? (all-vars env))
+                            (all-vars env)
+                            (list (all-vars env)))))
+      (if (not (subsequence? vars-used vars-defined))
+          'unspecified-variable
+          (b-eval (sub-all exp env))))))
+
+
+
+; (eval-in-env 1 environ1); => 1
+; (eval-in-env '(+ 0 0) '()); => 0
+; (eval-in-env 'x environ1); => 0
+; (eval-in-env 'x environ2); => 1
+; (eval-in-env '(- z) environ1); => 1
+; (eval-in-env '(- z) environ2); => 0
+; (eval-in-env '(+ y (- x)) environ2); => 0
+; (eval-in-env '(* (* (+ u x) (+ w 0)) (- (* y z))) environ2); => 1
+; (eval-in-env exp5 environ1); => 0
+; (eval-in-env '(* y (+ x u)) '((x 0) (y 1))); => unspecified-variable
 
 
 ; ****************************************************************
@@ -527,6 +612,28 @@
 ; (all-combs 3) => ((0 0 0) (0 0 1) (0 1 0) (0 1 1) (1 0 0) (1 0 1) (1 1 0) (1 1 1))
 ; ****************************************************************
 
+; join-to from hw2 adds an element to all top level items in a list
+(define join-to
+  (lambda (element lst)
+    (if (equal? lst '()) 
+        '()
+        (cons (cons element (car lst)) 
+              (join-to element (cdr lst))))))
+
+
+(define all-combs 
+  (lambda (n)
+    (if (equal? n 0)
+        '(())
+        (let ((next (all-combs (- n 1))))
+          (reverse (append (reverse (join-to 1 next))
+                           (reverse (join-to 0 next))))))))
+        
+
+; (all-combs 0) ;=> (())
+; (all-combs 1) ;=> ((0) (1))
+; (all-combs 2) ;=> ((0 0) (0 1) (1 0) (1 1))
+; (all-combs 3) ;=> ((0 0 0) (0 0 1) (0 1 0) (0 1 1) (1 0 0) (1 0 1) (1 1 0) (1 1 1))
 
 ; ****************************************************************
 ; ** problem 7 ** (10 points)
@@ -558,6 +665,66 @@
 ;   ((1 1 0) 1)
 ;   ((1 1 1) 0)))
 ; ****************************************************************
+
+; make-env takes a list of variables and set of values (in corresponding order)
+; and outputs an environment for them.
+
+(define make-env
+  (lambda (vars vals)
+    (if (null? vars)
+        '()
+        (cons (list (car vars) (car vals))
+              (make-env (cdr vars) (cdr vals))))))
+
+; (make-env '(x y z) '(0 1 0))
+
+; truth-table-row creates a single row of a truth table by listing the values
+; of the variables and the value of the expression at.
+(define truth-table-row
+  (lambda (env exp)
+    (list (map cadr env)
+          (eval-in-env exp env))))
+
+;(truth-table-row '((x 0) (y 1) (z 0)) '(* x (+ y z)))
+
+
+; body-of-table builds the body of the truth table, with each combo of variable values
+; and the result of applying those substitutions to the expression
+(define body-of-table
+  (lambda (combos exp)
+    (if (null? combos)
+        '()
+        (cons (truth-table-row (make-env (if (list? (all-vars exp))
+                         (all-vars exp)
+                         (list (all-vars exp))) (car combos))
+                               exp)
+              (body-of-table (cdr combos)
+                             exp)))))
+
+; (body-of-table '((0 0) (0 1) (1 0) (1 1)) '(* x y))
+
+(define truth-table
+  (lambda (exp)
+    (let ((vars-used (if (list? (all-vars exp))
+                         (all-vars exp)
+                         (list (all-vars exp)))))
+      (list vars-used (body-of-table (all-combs (length vars-used)) exp)))))
+
+; (truth-table  0) ;=> (() ((() 0)))
+; (truth-table 'x) ;=> ((x) (((0) 0) ((1) 1)))
+; (truth-table '(- z)) ;=> ((z) (((0) 1) ((1) 0)))
+; (truth-table '(* x y)) ;=> ((x y) (((0 0) 0) ((0 1) 0) ((1 0) 0) ((1 1) 1)))
+; (truth-table '(+ (* z (- y)) (* y (- x)))); => 
+; ((z y x)
+;  (((0 0 0) 0)
+;   ((0 0 1) 0)
+;   ((0 1 0) 1)
+;   ((0 1 1) 0)
+;   ((1 0 0) 1)
+;   ((1 0 1) 1)
+;   ((1 1 0) 1)
+;   ((1 1 1) 0)))
+
 
 
 ; ****************************************************************
@@ -595,6 +762,51 @@
 ; (equivalent? '(+ x (* y z)) '(* (+ x y) (+ x z))) => #t
 ; ****************************************************************
 
+; tt-results is a list of all results of a truth table
+(define tt-results
+  (lambda (tt)
+    (map cadr (cadr tt))))
+
+;(tt-results '((x) (((0) 0) ((1) 1))))
+;(tt-results '((x y) (((0 0) 0) ((0 1) 0) ((1 0) 0) ((1 1) 1))))
+
+
+(define satisfiable?
+  (lambda (exp)
+    (if (equal? 1 (apply b-or (tt-results (truth-table exp))))
+        #t
+        #f)))
+
+(define equivalent?
+  (lambda (exp1 exp2)
+    (let ((tt1 (truth-table exp1))
+          (tt2 (truth-table exp2)))
+    (if (equal? tt1 tt2)
+        #t
+        (cond
+          ((and (subsequence? (car tt1) (car tt2)) ; case where the variables are listed
+                (subsequence? (car tt2) (car tt1)) ; in a different order
+                (equal? (tt-results tt1)      
+                        (tt-results tt2)))
+           #t)
+          ((apply = (append (tt-results tt1)   ; if all the elements of the truth
+                            (tt-results tt2))) ; tables are the same (all 0s or all 1s)
+           #t)
+          (else #f))))))
+
+
+; (satisfiable? 0); => #f
+; (satisfiable? 1) ;=> #t
+; (satisfiable? '(* x (* y z))) ;=> #t
+; (satisfiable? '(* x (* (- y) y))) ;=> #f
+; (satisfiable? '(* (+ v (- v)) 0)) ;=> #f
+; (equivalent? 0 '(* a (- a))) ;=> #t
+; (equivalent? 1 '(+ a (- a))) ;=> #t
+; (equivalent? 0 'a) ;=> #f
+; (equivalent? 'a 'b) ;=> #f
+; (equivalent? '(+ x (+ y z)) '(+ (+ y x) (+ z 0))) ;=> #t
+; (equivalent? '(+ x (* y z)) '(* (+ x y) (+ x z))) ;=> #t
+
 
 ; ****************************************************************
 ; ** problem 9 ** (10 points)
@@ -619,6 +831,65 @@
 ; (equal? tt-f1 (truth-table (find-exp tt-f1))) => #t
 ; ****************************************************************
 
+; pos-envs goes through a truth table to find environments where the result is 1
+(define pos-envs
+  (lambda (tt)
+    (let ((tt-vars (car tt)) (tt-body (cadr tt)))
+      (cond
+        ((null? tt-body) '())
+        ((equal? 1 (cadar tt-body))
+         (cons (make-env tt-vars (caar tt-body))
+               (pos-envs (list tt-vars (cdr tt-body)))))
+        (else
+         (pos-envs (list tt-vars (cdr tt-body))))))))
+;(pos-envs tt-and)
+;(pos-envs tt-xor)
+
+
+; products takes and environment and gives components of the and statement that defines it
+; ex; ((x 0) (y 1) (z 1)) --> ((- x) y z))
+(define products
+  (lambda (env)
+    (if (null? env)
+        '()
+        (cons (if (equal? (cadar env) 1)
+                  (caar env)
+                  (list '- (caar env)))
+              (products (cdr env)))))) 
+;(products '((x 0) (y 1) (z 1)))
+
+;make-or combines the and statements for each good environment.
+(define sums
+  (lambda (good-envs)
+    (if (null? good-envs)
+        '()
+        (cons
+         (cons '* (products (car good-envs)))
+         (sums (cdr good-envs))))))
+
+;(make-or (pos-envs tt-and))
+;(make-or (pos-envs tt-xor))
+  
+
+
+
+; My find-exp uses sum of products.  It searches through the truth table for any
+; positive results and turns that set of values into an and statement.  All of the
+; and statements are concatenated into an or statement that defines the expression.
+
+(define find-exp
+  (lambda (tt)
+    (let ((ors (sums (pos-envs tt))))
+      (if (equal? (length ors) 1)
+          (car ors)
+          (cons '+ ors)))))
+
+
+ (boolean-exp? (find-exp tt-and)) ;=> #t
+ (equal? tt-and (truth-table (find-exp tt-and))) ;=> #t
+ (equal? tt-imp (truth-table (find-exp tt-imp))) ;=> #t
+ (equal? tt-xor (truth-table (find-exp tt-xor))) ;=> #t
+ (equal? tt-f1 (truth-table (find-exp tt-f1))) ;=> #t
 
 ; ****************************************************************
 ; ** problem 10 ** (10 points)
@@ -654,6 +925,64 @@
 ; (simplify '(+ (* x 0) (* y (- 1)))) => 0
 ; ****************************************************************
 
+;remove-all from hw2
+(define remove-all
+  (lambda (item list)
+    (cond
+      ((null? list) 
+       '())
+      ((equal? (car list) 
+               item) 
+       (remove-all item (cdr list)))
+      (else 
+       (cons (car list) 
+             (remove-all item (cdr list)))))))
+
+
+(define simplify
+  (lambda (exp)
+    (cond
+      ((equal? (type-of exp) 'constant) exp)
+      
+      ((equal? (type-of exp) 'not)
+       (let ((sim-exp (simplify (cadr exp))))
+       (cond
+         ((equal? sim-exp 1) 0)
+         ((equal? sim-exp 0) 1)
+         (else (list '- sim-exp)))))
+      
+      ((equal? (type-of exp) 'or)
+       (let ((sim-exp (map simplify exp)))
+       (cond 
+         ((contains? 1 sim-exp) 1)
+         ((equal? (length sim-exp) 2)
+          (cadr sim-exp))
+         (else (if (equal? (length (remove-all 0 sim-exp)) 1)
+                   0
+                   (remove-all 0 sim-exp))))))
+      
+      ((equal? (type-of exp) 'and)
+       (let ((sim-exp (map simplify exp)))
+       (cond 
+         ((contains? 0 sim-exp) 0)
+         ((equal? (length sim-exp) 2)
+          (cadr sim-exp))
+         (else (if (contains? 1 sim-exp)
+                   (simplify (remove-all 1 sim-exp))
+                   sim-exp)))))
+      
+      (else exp))))
+
+
+; (simplify 0) ;=> 0
+; (simplify '(- 0)) ;=> 1
+; (simplify '(* 1 0 1)) ;=> 0
+; (simplify '(+ x 0 y 0)) ;=> (+ x y)
+; (simplify '(+ 1 z)) ;=> 1
+; (simplify '(* x (- 0)))  ;=> x
+; (simplify '(- (* x (- 0)))) ;=> (- x)
+; (simplify '(- (+ (- x) x))) ;=> (- (+ (- x) x))
+; (simplify '(+ (* x 0) (* y (- 1)))) ;=> 0
 
 ; ****************************************************************
 ; See if you can figure out what the following procedure is doing.
@@ -665,7 +994,10 @@
     (let* ((s-exp (simplify exp))
 	   (vars (all-vars s-exp)))
       (cond
-       ((null? vars) (if (equal? exp 1) #t #f))
+       ((null? vars) 
+        (if (equal? exp 1)
+            #t 
+            #f))
        (else
 	(let ((var (car vars)))
 	  (if (what? (simplify (substitute-in exp var 0)))
