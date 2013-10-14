@@ -2,8 +2,8 @@
 ; CS 201b HW #4  DUE 11:59 pm Wednesday, October 16, 2013
 ; using the submit command on the Zoo.
 ; ****************************************************************
-; Name:
-; Email address:
+; Name: Mikayla Thompson
+; Email address: mikayla.thompson@yale.edu
 ; ****************************************************************
 ; ** problem 0 ** (1 easy point)
 ; Please modify the following definition to reflect the number of
