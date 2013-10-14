@@ -602,6 +602,28 @@
 ; (all-combs 3) => ((0 0 0) (0 0 1) (0 1 0) (0 1 1) (1 0 0) (1 0 1) (1 1 0) (1 1 1))
 ; ****************************************************************
 
+; join-to from hw2 adds an element to all top level items in a list
+(define join-to
+  (lambda (element lst)
+    (if (equal? lst '()) 
+        '()
+        (cons (cons element (car lst)) 
+              (join-to element (cdr lst))))))
+
+
+(define all-combs 
+  (lambda (n)
+    (if (equal? n 0)
+        '(())
+        (let ((next (all-combs (- n 1))))
+          (reverse (append (reverse (join-to 1 next))
+                           (reverse (join-to 0 next))))))))
+        
+
+; (all-combs 0) ;=> (())
+; (all-combs 1) ;=> ((0) (1))
+; (all-combs 2) ;=> ((0 0) (0 1) (1 0) (1 1))
+; (all-combs 3) ;=> ((0 0 0) (0 0 1) (0 1 0) (0 1 1) (1 0 0) (1 0 1) (1 1 0) (1 1 1))
 
 ; ****************************************************************
 ; ** problem 7 ** (10 points)
