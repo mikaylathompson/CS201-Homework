@@ -921,31 +921,64 @@
 ; (simplify '(+ (* x 0) (* y (- 1)))) => 0
 ; ****************************************************************
 
+;remove-all from hw2
+(define remove-all
+  (lambda (item list)
+    (cond
+      ((null? list) 
+       '())
+      ((equal? (car list) 
+               item) 
+       (remove-all item (cdr list)))
+      (else 
+       (cons (car list) 
+             (remove-all item (cdr list)))))))
+
 
 (define simplify
   (lambda (exp)
     (cond
       ((equal? (type-of exp) 'constant) exp)
-      ;((equal? (type-of exp) 'not) (simplify (cadr exp)))
+      
+      ((equal? (type-of exp) 'not)
+       (let ((sim-exp (simplify (cadr exp))))
+       (cond
+         ((equal? sim-exp 1) 0)
+         ((equal? sim-exp 0) 1)
+         (else (list '- sim-exp)))))
+      
       ((equal? (type-of exp) 'or)
-       (if (contains? 1 (map simplify (cdr exp)))
-           1
-           exp))
+       (let ((sim-exp (map simplify exp)))
+       (cond 
+         ((contains? 1 sim-exp) 1)
+         ((equal? (length sim-exp) 2)
+          (cadr sim-exp))
+         (else (if (equal? (length (remove-all 0 sim-exp)) 1)
+                   0
+                   (remove-all 0 sim-exp))))))
+      
       ((equal? (type-of exp) 'and)
-       (if (contains? 0 (map simplify (cdr exp)))
-           0
-           exp))
+       (let ((sim-exp (map simplify exp)))
+       (cond 
+         ((contains? 0 sim-exp) 0)
+         ((equal? (length sim-exp) 2)
+          (cadr sim-exp))
+         (else (if (contains? 1 sim-exp)
+                   (simplify (remove-all 1 sim-exp))
+                   sim-exp)))))
+      
       (else exp))))
 
 
- (simplify 0) ;=> 0
- (simplify '(- 0)) ;=> 1
- (simplify '(* 1 0 1)) ;=> 0
- (simplify '(+ x 0 y 0)) ;=> (+ x y)
- (simplify '(+ 1 z)) ;=> 1
- (simplify '(- (* x (- 0)))) ;=> (- x)
- (simplify '(- (+ (- x) x))) ;=> (- (+ (- x) x))
- (simplify '(+ (* x 0) (* y (- 1)))) ;=> 0
+; (simplify 0) ;=> 0
+; (simplify '(- 0)) ;=> 1
+; (simplify '(* 1 0 1)) ;=> 0
+; (simplify '(+ x 0 y 0)) ;=> (+ x y)
+; (simplify '(+ 1 z)) ;=> 1
+; (simplify '(* x (- 0)))  ;=> x
+; (simplify '(- (* x (- 0)))) ;=> (- x)
+; (simplify '(- (+ (- x) x))) ;=> (- (+ (- x) x))
+; (simplify '(+ (* x 0) (* y (- 1)))) ;=> 0
 
 ; ****************************************************************
 ; See if you can figure out what the following procedure is doing.
