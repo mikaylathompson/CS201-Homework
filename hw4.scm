@@ -828,6 +828,27 @@
 ; ****************************************************************
 
 
+(define products
+  (lambda (tt)
+    (
+
+(define find-exp
+  (lambda (tt)
+    (cond
+      ((equivalent? (tt-results tt) '(0)) '0)
+      ((equivalent? (tt-results tt) '(1)) '1)
+      (else
+       (cons '+ (products tt))))))
+
+
+
+
+ (boolean-exp? (find-exp tt-and)) ;=> #t
+ (equal? tt-and (truth-table (find-exp tt-and))) ;=> #t
+ (equal? tt-imp (truth-table (find-exp tt-imp))) ;=> #t
+ (equal? tt-xor (truth-table (find-exp tt-xor))) ;=> #t
+ (equal? tt-f1 (truth-table (find-exp tt-f1))) ;=> #t
+
 ; ****************************************************************
 ; ** problem 10 ** (10 points)
 ; Write a procedure
