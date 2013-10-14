@@ -990,7 +990,10 @@
     (let* ((s-exp (simplify exp))
 	   (vars (all-vars s-exp)))
       (cond
-       ((null? vars) (if (equal? exp 1) #t #f))
+       ((null? vars) 
+        (if (equal? exp 1)
+            #t 
+            #f))
        (else
 	(let ((var (car vars)))
 	  (if (what? (simplify (substitute-in exp var 0)))
