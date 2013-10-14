@@ -656,6 +656,26 @@
 ;   ((1 1 1) 0)))
 ; ****************************************************************
 
+; make-env takes a list of variables and set of values (in corresponding order)
+; and outputs an environment for them.
+
+(define make-env
+  (lambda (vars vals)
+    (if (null? vars)
+        '()
+        (cons (list (car vars) (car vals))
+              (make-env (cdr vars) (cdr vals))))))
+
+(make-env '(x y z) '(0 1 0))
+
+
+(define truth-table
+  (lambda (exp)
+    (let ((vars-used (if (list? (all-vars exp))
+              (all-vars exp)
+              (list (all-vars exp))))
+          (length 
+
 
 ; ****************************************************************
 ; ** problem 8 ** (10 points)
