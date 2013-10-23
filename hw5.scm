@@ -20,7 +20,7 @@
 ; Modify the following definition to reflect the number of
 ; hours you spent on this assignment.
 
-(define hours 0)
+(define hours 3)
 
 ;**********************************************************
 ; Here are procedures to compute some Boolean functions
@@ -214,6 +214,10 @@
 ; (circuit? '((x y) (z) ((and (x y) z) (or (x y) z)))) => #f
 ; (circuit? '((x y) (u z) ((and (x y) z)))) => #f
 ;**********************************************************
+
+
+
+
 
 
 ;**********************************************************
