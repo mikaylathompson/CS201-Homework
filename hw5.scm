@@ -218,13 +218,51 @@
 ; (circuit? '((x y) (u z) ((and (x y) z)))) => #f
 ;**********************************************************
 
-;Plan:
-;list all gate inputs
-;list all gate outputs
+
+
+
+; Plan:
+; list all gate inputs
+; list all gate outputs
 ;    (3) return false if an output is already in the list
-;(1) circuit inputs can not be included in gate outputs
-;(2) all gate inputs must be in gate outputs or circuit inputs
-;(4) all gate outputs must be either gate outputs or circuit inputs
+; (1) circuit inputs can not be included in gate outputs
+; (2) all gate inputs must be in gate outputs or circuit inputs
+; (4) all circuit outputs must be either gate outputs or circuit inputs
+
+
+
+
+(define circuits?
+  (lambda (ckt)
+    (cond
+      ((not (list? ckt))
+       #f)
+      ((not (= 3 (length ckt)))
+       #f)
+      (else
+       (let 
+           ((circuit-inputs (ckt-inputs ckt))
+            (circuit-outupts (ckt-outputs ckt))
+            (gate-inputs (gate-inputs ckt))
+            (gate-outputs (gate-outputs ckt)))
+         (cond
+           ((not gate-outputs)                ; (3)
+             #f)
+           ((any-included circuit-inputs 
+                          gate-outputs)       ; (1)
+            #f)
+           ((not (all-included gate-inputs 
+                               (append gate-outputs 
+                                       circuit-inputs))) ; (2)
+            #f)
+           ((not (all-included circuit-outputs
+                               (append gate-outputs
+                                       circuit-inputs)))  ; (4)
+            #f)
+           (else #t)))))))
+            
+        
+        
 
 
 ;**********************************************************
