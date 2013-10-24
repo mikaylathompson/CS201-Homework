@@ -229,7 +229,26 @@
 ; (2) all gate inputs must be in gate outputs or circuit inputs
 ; (4) all circuit outputs must be either gate outputs or circuit inputs
 
-; flatten turns a nested list into a flat one
+; and-list takes a list and returns #t if all elements are 1 or #t (from hw4 
+(define and-list
+  (lambda (lst)
+    (if (null? lst)
+        #t
+        (if (or (equal? #t (car lst)) 
+                (equal? 1 (car lst)))
+            (and-list (cdr lst))
+            #f))))
+; or-list takes a list and returns #t if any elements are 1 or #t (from hw4)
+(define or-list
+  (lambda (lst)
+    (if (null? lst)
+        #f
+        (if (or (equal? #t (car lst)) 
+                (equal? 1 (car lst)))
+            #t
+            (or-list (cdr lst))))))
+
+; flatten turns a nested list into a flat one (from hw4)
 (define flatten
   (lambda (lst)
     (cond
@@ -314,26 +333,31 @@
       (else
        (let 
            ((circuit-inputs (ckt-inputs ckt))
-            (circuit-outupts (ckt-outputs ckt))
+            (circuit-outputs (ckt-outputs ckt))
             (ckt-gate-inputs (all-gate-inputs (ckt-gates ckt)))
             (ckt-gate-outputs (all-gate-outputs (ckt-gates ckt))))
          (cond
+           ((not (and-list (map symbol? (append circuit-inputs
+                                                circuit-outputs
+                                                ckt-gate-inputs
+                                                ckt-gate-outputs))))
+            #f)   ; fails if all wires are not symbols
            ((duplicates-in? ckt-gate-outputs)            ; (3)
-             (display "Failed condition 3")
+             ;(display "Failed condition 3")
               #f)
            ((any-included? circuit-inputs 
                           ckt-gate-outputs)              ; (1)
-            (display "Failed condition 1")
+            ;(display "Failed condition 1")
             #f)
            ((not (all-included? ckt-gate-inputs 
                                (append ckt-gate-outputs 
                                        circuit-inputs))) ; (2)
-            (display "Failed condition 2")
+            ;(display "Failed condition 2")
             #f)
-           ((not (all-included? circuit-outupts
+           ((not (all-included? circuit-outputs
                                (append ckt-gate-outputs
                                        circuit-inputs)))  ; (4)
-           (display "Failed condition 4")
+           ;(display "Failed condition 4")
            #f)
            (else #t)))))))
             
@@ -422,6 +446,7 @@
 ; (find-gate 'w ckt-eq2) => (xor (x y) w)
 ; (find-gate 'y ckt-sel) => #f
 ;**********************************************************
+
 ; remove-all function from hw2.scm
 (define remove-all
   (lambda (item list)
@@ -530,12 +555,12 @@
      (and (x y) tmp3)
      (or (tmp2 tmp3) co))))
 
- (circuit? ckt-ha) ;=> #t
- (circuit? ckt-fa) ;=> #t
- (ckt-inputs ckt-ha) ;=> (x y)
- (ckt-outputs ckt-ha) ;=> (z co)
- (ckt-inputs ckt-fa) ;=> (x y ci)
- (ckt-outputs ckt-fa) ;=> (z co)
+ ;(circuit? ckt-ha) ;=> #t
+ ;(circuit? ckt-fa) ;=> #t
+ ;(ckt-inputs ckt-ha) ;=> (x y)
+ ;(ckt-outputs ckt-ha) ;=> (z co)
+ ;(ckt-inputs ckt-fa) ;=> (x y ci)
+ ;(ckt-outputs ckt-fa) ;=> (z co)
 
 ;**********************************************************
 ; A configuration of a circuit is a table giving a value (0 or 1)
