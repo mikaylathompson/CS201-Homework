@@ -865,6 +865,46 @@
 ;    ((x 0) (y 1) (z 0) (w 1)))) => #t
 ;**********************************************************
 
+ ; check if stable.
+ ; check if n is 0
+ ; cons current-config with (simulate (ckt next-config (- n 1))
+ 
+ (define simulate
+   (lambda (ckt config n)
+     (cond
+       ((stable? ckt config)
+        (list config))
+       ((= n 0)
+        (list config))
+       (else
+        (cons config
+              (simulate ckt (next-config ckt config) (- n 1)))))))
+
+ (simulate ckt-clock '((z 0)) 5) ;=> (((z 0)) ((z 1)) ((z 0)) ((z 1)) ((z 0)) ((z 1)))
+
+ (t-compare-as-permutations? 
+  (simulate ckt-eq1 eq1-config1 5) 
+  '(((x 0) (y 1) (z 0) (cx 0) (cy 0) (t1 0) (t2 0)) 
+    ((x 0) (y 1) (z 0) (cx 1) (cy 0) (t1 0) (t2 0)))) ;=> #t
+
+ (t-compare-as-permutations? 
+  (simulate ckt-sel sel-config1 5) 
+  '(((x1 0) (x0 1) (y1 1) (y0 0) (s 1) (z1 0) (z0 0) 
+     (sc 0) (u1 0) (v1 0) (u0 0) (v0 0)) 
+    ((x1 0) (x0 1) (y1 1) (y0 0) (s 1) (z1 0) (z0 0) 
+     (sc 0) (u1 0) (v1 1) (u0 0) (v0 0)) 
+    ((x1 0) (x0 1) (y1 1) (y0 0) (s 1) (z1 1) (z0 0) 
+     (sc 0) (u1 0) (v1 1) (u0 0) (v0 0)))) ;=> #t
+
+ (t-compare-as-permutations? 
+  (simulate ckt-latch latch-config2 3) 
+  '(((x 0) (y 1) (q 1) (u 0)))) ;=> #t
+
+ (t-compare-as-permutations? 
+  (simulate ckt-eq2 (init-config ckt-eq2 '(0 1)) 5) 
+  '(((x 0) (y 1) (z 0) (w 0)) 
+    ((x 0) (y 1) (z 1) (w 1)) 
+    ((x 0) (y 1) (z 0) (w 1)))) ;=> #t
 
 ;**********************************************************
 ; ** problem 8 ** (10 points)
