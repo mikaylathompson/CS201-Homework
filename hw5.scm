@@ -295,7 +295,13 @@
 ; returns true if ALL of the items in targets are also included in pool.g
 (define all-included?
   (lambda (targets pool)
-    #t))
+    (cond
+      ((null? targets)
+       #t)
+      ((not (includes? pool (car targets)))
+       #f)
+      (else
+       (all-included? (cdr targets) pool)))))
 
 
 (define circuit?
@@ -336,15 +342,12 @@
  ;(circuit? ckt-latch) ;=> #t
  ;(circuit? ckt-clock) ;=> #t
  ;(circuit? ckt-seq-or) ;=> #t
- ;(display "\n\n")
  ;(circuit? 'hi) ;=> #f
  ;(circuit? '(() () ())) ;=> #t
- (display "\n\n")
- (circuit? '((1 2) (3) ((and (1 2) 3)))) ;=> #f
- (circuit? '((x y) (z) ((or (x y) x) (and (x y) z)))) ;=> #f
- (circuit? '((x y) (z) ((and (x y) z) (or (x y) z)))) ;=> #f
- (display "\nShould fail #4 \n")
- (circuit? '((x y) (u z) ((and (x y) z)))) ;=> #f
+ ;(circuit? '((1 2) (3) ((and (1 2) 3)))) ;=> #f
+ ;(circuit? '((x y) (z) ((or (x y) x) (and (x y) z)))) ;=> #f
+ ;(circuit? '((x y) (z) ((and (x y) z) (or (x y) z)))) ;=> #f
+ ;(circuit? '((x y) (u z) ((and (x y) z)))) ;=> #f
 
 
 ;**********************************************************
@@ -419,6 +422,56 @@
 ; (find-gate 'w ckt-eq2) => (xor (x y) w)
 ; (find-gate 'y ckt-sel) => #f
 ;**********************************************************
+; remove-all function from hw2.scm
+(define remove-all
+  (lambda (item list)
+    (cond
+      ((null? list) 
+       '())
+      ((equal? (car list) 
+               item) 
+       (remove-all item (cdr list)))
+      (else 
+       (cons (car list) 
+             (remove-all item (cdr list)))))))
+
+; remove-duplicates function from hw2.scm
+(define remove-duplicates
+  (lambda (list)
+    (if (null? list)
+        '()
+        (cons (car list) 
+              (remove-duplicates (remove-all (car list) 
+                                             (cdr list)))))))
+
+(define ckt-wires
+  (lambda (ckt)
+    (remove-duplicates
+     (append (ckt-inputs ckt)
+             (ckt-outputs ckt)
+             (all-gate-inputs (ckt-gates ckt))
+             (all-gate-outputs (ckt-gates ckt))))))
+
+ ;(t-permutation? (ckt-wires ckt-eq1) '(x y z cx cy t1 t2)); => #t
+ ;(t-permutation? (ckt-wires ckt-sel) '(x1 x0 y1 y0 s z1 z0 sc u1 v1 u0 v0)); => #t
+
+(define find-gate-helper
+  (lambda (wire gates)
+    (if (equal? (gate-output (car gates))
+                wire)
+        (car gates)
+        (find-gate-helper wire (cdr gates)))))
+
+(define find-gate
+  (lambda (wire ckt)
+    (if (includes? (all-gate-outputs (ckt-gates ckt))
+                   wire)
+        (find-gate-helper wire (ckt-gates ckt))
+        #f)))
+
+ ;(find-gate 't2 ckt-eq1) ;=> (and (cx cy) t2)
+ ;(find-gate 'w ckt-eq2) ;=> (xor (x y) w)
+ ;(find-gate 'y ckt-sel) ;=> #f
 
 
 ;**********************************************************
