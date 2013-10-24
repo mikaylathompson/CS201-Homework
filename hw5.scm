@@ -196,9 +196,12 @@
 ; lists of wires, and the third being a list of
 ; gates, as defined above.  In addition:
 ; (1) no input of the circuit is the output of a gate,
+
 ; (2) every input of a gate is either 
 ; an input of the circuit or the output of a gate,
+
 ; (3) no wire is the output of two or more gates,
+
 ; (4) every output of the circuit is either an input
 ; of the circuit or the output of a gate.
 
@@ -215,9 +218,13 @@
 ; (circuit? '((x y) (u z) ((and (x y) z)))) => #f
 ;**********************************************************
 
-
-
-
+;Plan:
+;list all gate inputs
+;list all gate outputs
+;    (3) return false if an output is already in the list
+;(1) circuit inputs can not be included in gate outputs
+;(2) all gate inputs must be in gate outputs or circuit inputs
+;(4) all gate outputs must be either gate outputs or circuit inputs
 
 
 ;**********************************************************
