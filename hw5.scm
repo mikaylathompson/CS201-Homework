@@ -515,6 +515,27 @@
 ; must be working.
 ;**********************************************************
 
+(define ckt-ha
+  '((x y)
+    (z co)
+    ((xor (x y) z)
+     (and (x y) co))))
+
+(define ckt-fa
+  '((x y ci)
+    (z co)
+    ((xor (x y) tmp1)
+     (xor (tmp1 ci) z)
+     (and (tmp1 ci) tmp2)
+     (and (x y) tmp3)
+     (or (tmp2 tmp3) co))))
+
+ (circuit? ckt-ha) ;=> #t
+ (circuit? ckt-fa) ;=> #t
+ (ckt-inputs ckt-ha) ;=> (x y)
+ (ckt-outputs ckt-ha) ;=> (z co)
+ (ckt-inputs ckt-fa) ;=> (x y ci)
+ (ckt-outputs ckt-fa) ;=> (z co)
 
 ;**********************************************************
 ; A configuration of a circuit is a table giving a value (0 or 1)
