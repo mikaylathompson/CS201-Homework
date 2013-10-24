@@ -708,12 +708,12 @@
            (list wire (next-value wire ckt config)))
          (ckt-wires ckt))))
 
- (t-permutation? (next-config ckt-eq1 eq1-config1) '((x 0) (y 1) (z 0) (cx 1) (cy 0) (t1 0) (t2 0))) ;=> #t
- (t-permutation? (next-config ckt-eq1 eq1-config2) '((x 0) (y 0) (z 0) (cx 1) (cy 1) (t1 0) (t2 1))) ;=> #t
- (t-permutation? (next-config ckt-sel sel-config1) '((x1 0) (x0 1) (y1 1) (y0 0) (s 1) (z1 0) (z0 0) (sc 0) (u1 0) (v1 1) (u0 0) (v0 0))) ;=> #t
- (t-permutation? (next-config ckt-sel (next-config ckt-sel sel-config1)) '((x1 0) (x0 1) (y1 1) (y0 0) (s 1) (z1 1) (z0 0) (sc 0) (u1 0) (v1 1) (u0 0) (v0 0))) ;=> #t
- (t-permutation? (next-config ckt-latch latch-config1) '((x 0) (y 0) (q 1) (u 1))) ;=> #t
- (t-permutation? (next-config ckt-latch latch-config2) '((x 0) (y 1) (q 1) (u 0))) ;=> #t
+; (t-permutation? (next-config ckt-eq1 eq1-config1) '((x 0) (y 1) (z 0) (cx 1) (cy 0) (t1 0) (t2 0))) ;=> #t
+; (t-permutation? (next-config ckt-eq1 eq1-config2) '((x 0) (y 0) (z 0) (cx 1) (cy 1) (t1 0) (t2 1))) ;=> #t
+; (t-permutation? (next-config ckt-sel sel-config1) '((x1 0) (x0 1) (y1 1) (y0 0) (s 1) (z1 0) (z0 0) (sc 0) (u1 0) (v1 1) (u0 0) (v0 0))) ;=> #t
+; (t-permutation? (next-config ckt-sel (next-config ckt-sel sel-config1)) '((x1 0) (x0 1) (y1 1) (y0 0) (s 1) (z1 1) (z0 0) (sc 0) (u1 0) (v1 1) (u0 0) (v0 0))) ;=> #t
+; (t-permutation? (next-config ckt-latch latch-config1) '((x 0) (y 0) (q 1) (u 1))) ;=> #t
+; (t-permutation? (next-config ckt-latch latch-config2) '((x 0) (y 1) (q 1) (u 0))) ;=> #t
 
  
  
@@ -780,7 +780,31 @@
 
 ;**********************************************************
 
+(define stable?
+  (lambda (ckt config)
+    (t-permutation? (next-config ckt config) config)))
+ (stable? ckt-eq1 '((x 0) (y 0) (z 1) (cx 1) (cy 1) (t1 0) (t2 1))) ;=> #t
+ (stable? ckt-eq1 '((x 0) (y 0) (z 0) (cx 1) (cy 0) (t1 1) (t2 0))) ;=> #f
+
+ 
+ (define output-values
+   (lambda (ckt config)
+     (let ((outputs (ckt-outputs ckt))
+           (new-config (next-config ckt config)))
+       (map (lambda (wire) (value-in-config wire new-config))
+            outputs))))
+ (output-values ckt-eq1 eq1-config2) ;=> (1)
+ (output-values ckt-latch latch-config2) ;=> (1 0)    
 	     
+ (define zero-config
+   (lambda (ckt)
+     (map (lambda (wire) (list wire '0))
+          (ckt-wires ckt))))
+ (t-permutation? (zero-config ckt-eq2) '((x 0) (y 0) (z 0) (w 0))) ;=> #t
+ (zero-config ckt-clock) ;=> ((z 0))
+ 
+ 
+ 
 ;**********************************************************
 ; ** problem 7 ** (10 points)
 ; Write a procedure (simulate ckt config n)
