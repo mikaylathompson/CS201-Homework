@@ -795,7 +795,8 @@
             outputs))))
  (output-values ckt-eq1 eq1-config2) ;=> (1)
  (output-values ckt-latch latch-config2) ;=> (1 0)    
-	     
+ 
+ 
  (define zero-config
    (lambda (ckt)
      (map (lambda (wire) (list wire '0))
@@ -803,7 +804,20 @@
  (t-permutation? (zero-config ckt-eq2) '((x 0) (y 0) (z 0) (w 0))) ;=> #t
  (zero-config ckt-clock) ;=> ((z 0))
  
- 
+
+ (define set-wires
+   (lambda (new-values config)
+     (map (lambda (wire-value-pair)
+            (if (value-in-config (car wire-value-pair) new-values)
+                (list (car wire-value-pair) 
+                      (value-in-config (car wire-value-pair) new-values))
+                (list (car wire-value-pair)
+                      (value-in-config (car wire-value-pair) config))))
+          config)))
+ (set-wires '((x 1) (y 0) (v 0)) '((u 0) (v 1) (x 0) (y 0) (z 1))) ;=> ((u 0) (v 0) (x 1) (y 0) (z 1))
+ (set-wires '((b 0) (a 1)) '((c 1) (a 0) (b 1) (d 0))) ;=> ((c 1) (a 1) (b 0) (d 0))
+     
+                
  
 ;**********************************************************
 ; ** problem 7 ** (10 points)
