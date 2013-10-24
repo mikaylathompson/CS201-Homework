@@ -969,22 +969,22 @@
                              (cons config config-list))))))
          
  
- (final-config ckt-clock '((z 0))) ;=> none
-
- (t-permutation? 
-  (final-config ckt-eq1 '((x 1) (y 1) (z 0) (cx 0) (cy 0) (t1 0) (t2 0))) 
-  '((x 1) (y 1) (z 1) (cx 0) (cy 0) (t1 1) (t2 0))) ;=> #t
-
- (t-permutation? 
-  (final-config 
-   ckt-sel 
-   '((x1 0) (x0 1) (y1 1) (y0 0) (s 0) (z1 1) (z0 0) 
-     (sc 0) (u1 1) (v1 1) (u0 0) (v0 1)))
-  '((x1 0) (x0 1) (y1 1) (y0 0) (s 0) (z1 0) (z0 1) 
-    (sc 1) (u1 0) (v1 0) (u0 1) (v0 0))) ;=> #t
-
- (t-permutation? (final-config ckt-latch '((x 1) (y 0) (q 0) (u 0))) 
-                 '((x 1) (y 0) (q 0) (u 1))) ;=> #t
+; (final-config ckt-clock '((z 0))) ;=> none
+;
+; (t-permutation? 
+;  (final-config ckt-eq1 '((x 1) (y 1) (z 0) (cx 0) (cy 0) (t1 0) (t2 0))) 
+;  '((x 1) (y 1) (z 1) (cx 0) (cy 0) (t1 1) (t2 0))) ;=> #t
+;
+; (t-permutation? 
+;  (final-config 
+;   ckt-sel 
+;   '((x1 0) (x0 1) (y1 1) (y0 0) (s 0) (z1 1) (z0 0) 
+;     (sc 0) (u1 1) (v1 1) (u0 0) (v0 1)))
+;  '((x1 0) (x0 1) (y1 1) (y0 0) (s 0) (z1 0) (z0 1) 
+;    (sc 1) (u1 0) (v1 0) (u0 1) (v0 0))) ;=> #t
+;
+; (t-permutation? (final-config ckt-latch '((x 1) (y 0) (q 0) (u 0))) 
+;                 '((x 1) (y 0) (q 0) (u 1))) ;=> #t
  
 ;**********************************************************
 ; ** problem 9 ** (10 points)
@@ -1021,6 +1021,43 @@
 ; or you may choose to write procedures to construct your circuit.
 ;**********************************************************
 
+
+(define ckt-adder
+  '((x3 x2 x1 x0
+     y3 y2 y1 y0)
+    (z4 z3 z2 z1 z0)
+    ((xor (x0 y0) z0)   ;first half-adder
+     (and (x0 y0) c0)
+     
+     (xor (x1 y1) t1a)
+     (xor (t1a c0) z1)
+     (and (t1a c0) t1b)   ; first full-adder
+     (and (x1 y1) t1c)
+     (or (t1b t1c) c1)
+     
+     (xor (x2 y2) t2a)
+     (xor (t2a c1) z2)
+     (and (t2a c1) t2b)   ; second full-adder
+     (and (x2 y2) t2c)
+     (or (t2b t2c) c2)
+     
+     (xor (x3 y3) t3a)
+     (xor (t3a c2) z3)
+     (and (t3a c2) t3b)   ; third full-adder
+     (and (x3 y3) t3c)
+     (or (t3b t3c) z4))))
+              
+; (circuit? ckt-adder) ;=> #t
+; (ckt-inputs ckt-adder) ;=> (x3 x2 x1 x0 y3 y2 y1 y0)
+; (ckt-outputs ckt-adder) ;=> (z4 z3 z2 z1 z0)
+; (output-values 
+;  ckt-adder 
+;  (final-config ckt-adder (init-config ckt-adder '(1 0 0 1 1 1 0 1)))) ;=> (1 0 1 1 0)
+; (output-values 
+;  ckt-adder 
+;  (final-config ckt-adder (init-config ckt-adder '(0 1 1 1 0 1 1 0)))) ;=> (0 1 1 0 1)
+
+ 
 
 ;**********************************************************
 ; ** problem 10 ** (10 points)
