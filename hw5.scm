@@ -617,6 +617,56 @@
 ; (next-value 'v0 ckt-sel sel-config2) => 0
 ;**********************************************************
 
+; looks up the value of a wire in a configuration
+(define value-in-config
+  (lambda (wire config)
+    (cond
+      ((null? config)
+       #f)
+      ((equal? (caar config) wire)
+       (cadar config))
+      (else
+       (value-in-config wire (cdr config))))))
+
+;(value-in-config 'cx eq1-config1); => 0
+;(value-in-config 'x1 sel-config2); => 1
+
+(define next-value
+  (lambda (wire ckt config)
+    (let ((my-gate (find-gate wire ckt)))
+      (if my-gate
+          (let ((my-fn (gate-fn my-gate))
+                (my-ins (gate-inputs my-gate)))
+            (cond
+              ((equal? 'and
+                       my-fn)
+               (apply b-and (map value-in-config my-ins (list config config))))
+              ((equal? 'or
+                       my-fn)
+               (apply b-or (map value-in-config my-ins (list config config))))
+              ((equal? 'xor
+                       my-fn)
+               (apply b-xor (map value-in-config my-ins (list config config))))
+              ((equal? 'nor
+                       my-fn)
+               (apply b-nor (map value-in-config my-ins (list config config))))
+              ((equal? 'nand
+                       my-fn)
+               (apply b-nand (map value-in-config my-ins (list config config))))
+              ((equal? 'not
+                       my-fn)
+               (apply b-not (value-in-config (car my-ins) config)))
+              ((equal? 'ident
+                       my-fn)
+               (apply b-ident (value-in-config (car my-ins) config)))
+              (else
+               'Error-with-gate-function)))
+          (value-in-config wire config)))))
+          
+
+; (next-value 'x0 ckt-sel sel-config1) ;=> 1
+; (next-value 'v1 ckt-sel sel-config1) ;=> 1
+; (next-value 'v0 ckt-sel sel-config2) ;=> 0
 
 ;**********************************************************
 ; ** problem 5 ** (10 points)
