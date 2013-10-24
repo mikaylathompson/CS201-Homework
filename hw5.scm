@@ -783,8 +783,8 @@
 (define stable?
   (lambda (ckt config)
     (t-permutation? (next-config ckt config) config)))
- (stable? ckt-eq1 '((x 0) (y 0) (z 1) (cx 1) (cy 1) (t1 0) (t2 1))) ;=> #t
- (stable? ckt-eq1 '((x 0) (y 0) (z 0) (cx 1) (cy 0) (t1 1) (t2 0))) ;=> #f
+ ;(stable? ckt-eq1 '((x 0) (y 0) (z 1) (cx 1) (cy 1) (t1 0) (t2 1))) ;=> #t
+ ;(stable? ckt-eq1 '((x 0) (y 0) (z 0) (cx 1) (cy 0) (t1 1) (t2 0))) ;=> #f
 
  
  (define output-values
@@ -793,16 +793,16 @@
            (new-config (next-config ckt config)))
        (map (lambda (wire) (value-in-config wire new-config))
             outputs))))
- (output-values ckt-eq1 eq1-config2) ;=> (1)
- (output-values ckt-latch latch-config2) ;=> (1 0)    
+ ;(output-values ckt-eq1 eq1-config2) ;=> (1)
+ ;(output-values ckt-latch latch-config2) ;=> (1 0)    
  
  
  (define zero-config
    (lambda (ckt)
      (map (lambda (wire) (list wire '0))
           (ckt-wires ckt))))
- (t-permutation? (zero-config ckt-eq2) '((x 0) (y 0) (z 0) (w 0))) ;=> #t
- (zero-config ckt-clock) ;=> ((z 0))
+ ;(t-permutation? (zero-config ckt-eq2) '((x 0) (y 0) (z 0) (w 0))) ;=> #t
+ ;(zero-config ckt-clock) ;=> ((z 0))
  
 
  (define set-wires
@@ -814,10 +814,18 @@
                 (list (car wire-value-pair)
                       (value-in-config (car wire-value-pair) config))))
           config)))
- (set-wires '((x 1) (y 0) (v 0)) '((u 0) (v 1) (x 0) (y 0) (z 1))) ;=> ((u 0) (v 0) (x 1) (y 0) (z 1))
- (set-wires '((b 0) (a 1)) '((c 1) (a 0) (b 1) (d 0))) ;=> ((c 1) (a 1) (b 0) (d 0))
-     
-                
+ ;(set-wires '((x 1) (y 0) (v 0)) '((u 0) (v 1) (x 0) (y 0) (z 1))) ;=> ((u 0) (v 0) (x 1) (y 0) (z 1))
+ ;(set-wires '((b 0) (a 1)) '((c 1) (a 0) (b 1) (d 0))) ;=> ((c 1) (a 1) (b 0) (d 0))
+ 
+ 
+ (define init-config
+   (lambda (ckt input-values)
+     (let ((config0 (zero-config ckt))
+           (input-config (map list (ckt-inputs ckt) input-values)))
+       (set-wires input-config config0))))
+ 
+ ;(t-permutation? (init-config ckt-eq1 '(1 0)) '((x 1) (y 0) (z 0) (cx 0) (cy 0) (t1 0) (t2 0))) ;=> #t
+ ;(init-config ckt-clock '()) ;=> ((z 0))
  
 ;**********************************************************
 ; ** problem 7 ** (10 points)
