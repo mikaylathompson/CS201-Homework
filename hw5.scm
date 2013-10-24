@@ -229,14 +229,32 @@
 ; (2) all gate inputs must be in gate outputs or circuit inputs
 ; (4) all circuit outputs must be either gate outputs or circuit inputs
 
+; flatten turns a nested list into a flat one
+(define flatten
+  (lambda (lst)
+    (cond
+      ((null? lst) '())
+      ((list? (car lst))
+       (append (flatten (car lst)) (flatten (cdr lst))))
+      (else 
+       (cons (car lst) (flatten (cdr lst)))))))
+
+; includes? takes a list and a target.  It returns true
+; if target is a top level element of list. (from hw1)
+(define includes?
+  (lambda (list target)
+    (if (equal? '() list)
+        #f
+        (or (equal? (car list) 
+                    target)
+            (includes? (cdr list) target)))))
 
 ; returns true if any items in a list are repeated within the list.
 (define duplicates-in?
   (lambda (lst)
     (cond
       ((null? lst) #f)
-      ((any-included? (list (car lst))
-                      (cdr lst))
+      ((includes? (cdr lst) (car lst))
        #t)
       (else
        (duplicates-in? (cdr lst))))))
@@ -248,7 +266,8 @@
       ((null? gates)
        '())
       (else
-       (map gate-inputs gates)))))
+       (flatten (map gate-inputs gates))))))
+
 
 ; returns the outputs of all gates in a circuit, or false if any are repeated
 (define all-gate-outputs
@@ -257,24 +276,29 @@
       ((null? gates)
        '())
       (else
-       (let ((raw-outputs (map gate-outputs gates)))
-         (if (duplicates-in? raw-outputs)
-             #f
-             raw-outputs))))))
+       (flatten (map gate-output gates))))))
+
+
 
 ; returns true if ANY of the items in targets are also included in pool.
 (define any-included?
   (lambda (targets pool)
-    #t))
+    (cond
+      ((null? targets)
+       #f)
+      ((includes? pool (car targets))
+        #t)
+      (else
+       (any-included? (cdr targets) pool)))))
 
 
-; returns true if ALL of the items in targets are also included in pool.
+; returns true if ALL of the items in targets are also included in pool.g
 (define all-included?
   (lambda (targets pool)
     #t))
 
 
-(define circuits?
+(define circuit?
   (lambda (ckt)
     (cond
       ((not (list? ckt))
@@ -288,23 +312,39 @@
             (ckt-gate-inputs (all-gate-inputs (ckt-gates ckt)))
             (ckt-gate-outputs (all-gate-outputs (ckt-gates ckt))))
          (cond
-           ((not gate-outputs)                ; (3)
-             #f)
+           ((duplicates-in? ckt-gate-outputs)            ; (3)
+             (display "Failed condition 3")
+              #f)
            ((any-included? circuit-inputs 
-                          ckt-gate-outputs)       ; (1)
+                          ckt-gate-outputs)              ; (1)
+            (display "Failed condition 1")
             #f)
            ((not (all-included? ckt-gate-inputs 
                                (append ckt-gate-outputs 
                                        circuit-inputs))) ; (2)
+            (display "Failed condition 2")
             #f)
-           ((not (all-included? circuit-outputs
+           ((not (all-included? circuit-outupts
                                (append ckt-gate-outputs
                                        circuit-inputs)))  ; (4)
-            #f)
+           (display "Failed condition 4")
+           #f)
            (else #t)))))))
             
         
-        
+ ;(circuit? ckt-sel) ;=> #t
+ ;(circuit? ckt-latch) ;=> #t
+ ;(circuit? ckt-clock) ;=> #t
+ ;(circuit? ckt-seq-or) ;=> #t
+ ;(display "\n\n")
+ ;(circuit? 'hi) ;=> #f
+ ;(circuit? '(() () ())) ;=> #t
+ (display "\n\n")
+ (circuit? '((1 2) (3) ((and (1 2) 3)))) ;=> #f
+ (circuit? '((x y) (z) ((or (x y) x) (and (x y) z)))) ;=> #f
+ (circuit? '((x y) (z) ((and (x y) z) (or (x y) z)))) ;=> #f
+ (display "\nShould fail #4 \n")
+ (circuit? '((x y) (u z) ((and (x y) z)))) ;=> #f
 
 
 ;**********************************************************
