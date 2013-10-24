@@ -880,31 +880,31 @@
         (cons config
               (simulate ckt (next-config ckt config) (- n 1)))))))
 
- (simulate ckt-clock '((z 0)) 5) ;=> (((z 0)) ((z 1)) ((z 0)) ((z 1)) ((z 0)) ((z 1)))
-
- (t-compare-as-permutations? 
-  (simulate ckt-eq1 eq1-config1 5) 
-  '(((x 0) (y 1) (z 0) (cx 0) (cy 0) (t1 0) (t2 0)) 
-    ((x 0) (y 1) (z 0) (cx 1) (cy 0) (t1 0) (t2 0)))) ;=> #t
-
- (t-compare-as-permutations? 
-  (simulate ckt-sel sel-config1 5) 
-  '(((x1 0) (x0 1) (y1 1) (y0 0) (s 1) (z1 0) (z0 0) 
-     (sc 0) (u1 0) (v1 0) (u0 0) (v0 0)) 
-    ((x1 0) (x0 1) (y1 1) (y0 0) (s 1) (z1 0) (z0 0) 
-     (sc 0) (u1 0) (v1 1) (u0 0) (v0 0)) 
-    ((x1 0) (x0 1) (y1 1) (y0 0) (s 1) (z1 1) (z0 0) 
-     (sc 0) (u1 0) (v1 1) (u0 0) (v0 0)))) ;=> #t
-
- (t-compare-as-permutations? 
-  (simulate ckt-latch latch-config2 3) 
-  '(((x 0) (y 1) (q 1) (u 0)))) ;=> #t
-
- (t-compare-as-permutations? 
-  (simulate ckt-eq2 (init-config ckt-eq2 '(0 1)) 5) 
-  '(((x 0) (y 1) (z 0) (w 0)) 
-    ((x 0) (y 1) (z 1) (w 1)) 
-    ((x 0) (y 1) (z 0) (w 1)))) ;=> #t
+; (simulate ckt-clock '((z 0)) 5) ;=> (((z 0)) ((z 1)) ((z 0)) ((z 1)) ((z 0)) ((z 1)))
+;
+; (t-compare-as-permutations? 
+;  (simulate ckt-eq1 eq1-config1 5) 
+;  '(((x 0) (y 1) (z 0) (cx 0) (cy 0) (t1 0) (t2 0)) 
+;    ((x 0) (y 1) (z 0) (cx 1) (cy 0) (t1 0) (t2 0)))) ;=> #t
+;
+; (t-compare-as-permutations? 
+;  (simulate ckt-sel sel-config1 5) 
+;  '(((x1 0) (x0 1) (y1 1) (y0 0) (s 1) (z1 0) (z0 0) 
+;     (sc 0) (u1 0) (v1 0) (u0 0) (v0 0)) 
+;    ((x1 0) (x0 1) (y1 1) (y0 0) (s 1) (z1 0) (z0 0) 
+;     (sc 0) (u1 0) (v1 1) (u0 0) (v0 0)) 
+;    ((x1 0) (x0 1) (y1 1) (y0 0) (s 1) (z1 1) (z0 0) 
+;     (sc 0) (u1 0) (v1 1) (u0 0) (v0 0)))) ;=> #t
+;
+; (t-compare-as-permutations? 
+;  (simulate ckt-latch latch-config2 3) 
+;  '(((x 0) (y 1) (q 1) (u 0)))) ;=> #t
+;
+; (t-compare-as-permutations? 
+;  (simulate ckt-eq2 (init-config ckt-eq2 '(0 1)) 5) 
+;  '(((x 0) (y 1) (z 0) (w 0)) 
+;    ((x 0) (y 1) (z 1) (w 1)) 
+;    ((x 0) (y 1) (z 0) (w 1)))) ;=> #t
 
 ;**********************************************************
 ; ** problem 8 ** (10 points)
@@ -941,7 +941,51 @@
 ;                 '((x 1) (y 0) (q 0) (u 1))) => #t
 ;**********************************************************
 
+ (define final-config
+   (lambda (ckt config)
+     (if (stable? ckt config)
+         config
+         (final-config-helper ckt 
+                              (next-config ckt config)
+                              0
+                              '()))))
 
+ (define final-config-helper
+   (lambda (ckt config n config-list)
+     (cond
+       ((stable? ckt config)
+        config)
+       ((< n 20)
+        (final-config-helper ckt 
+                             (next-config ckt config)
+                             (+ n 1)
+                             (cons config config-list)))
+       ((includes? config-list config)
+        'none)
+       (else
+        (final-config-helper ckt
+                             (next-config ckt config)
+                             (+ n 1)
+                             (cons config config-list))))))
+         
+ 
+ (final-config ckt-clock '((z 0))) ;=> none
+
+ (t-permutation? 
+  (final-config ckt-eq1 '((x 1) (y 1) (z 0) (cx 0) (cy 0) (t1 0) (t2 0))) 
+  '((x 1) (y 1) (z 1) (cx 0) (cy 0) (t1 1) (t2 0))) ;=> #t
+
+ (t-permutation? 
+  (final-config 
+   ckt-sel 
+   '((x1 0) (x0 1) (y1 1) (y0 0) (s 0) (z1 1) (z0 0) 
+     (sc 0) (u1 1) (v1 1) (u0 0) (v0 1)))
+  '((x1 0) (x0 1) (y1 1) (y0 0) (s 0) (z1 0) (z0 1) 
+    (sc 1) (u1 0) (v1 0) (u0 1) (v0 0))) ;=> #t
+
+ (t-permutation? (final-config ckt-latch '((x 1) (y 0) (q 0) (u 0))) 
+                 '((x 1) (y 0) (q 0) (u 1))) ;=> #t
+ 
 ;**********************************************************
 ; ** problem 9 ** (10 points)
 ; Define a 4-bit ripple-carry adder circuit as described in lecture
