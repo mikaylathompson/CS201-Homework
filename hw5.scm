@@ -230,6 +230,48 @@
 ; (4) all circuit outputs must be either gate outputs or circuit inputs
 
 
+; returns true if any items in a list are repeated within the list.
+(define duplicates-in?
+  (lambda (lst)
+    (cond
+      ((null? lst) #f)
+      ((any-included? (list (car lst))
+                      (cdr lst))
+       #t)
+      (else
+       (duplicates-in? (cdr lst))))))
+
+; returns the inputs of all gates in a circuit
+(define all-gate-inputs
+  (lambda (gates)
+    (cond
+      ((null? gates)
+       '())
+      (else
+       (map gate-inputs gates)))))
+
+; returns the outputs of all gates in a circuit, or false if any are repeated
+(define all-gate-outputs
+  (lambda (gates)
+    (cond
+      ((null? gates)
+       '())
+      (else
+       (let ((raw-outputs (map gate-outputs gates)))
+         (if (duplicates-in? raw-outputs)
+             #f
+             raw-outputs))))))
+
+; returns true if ANY of the items in targets are also included in pool.
+(define any-included?
+  (lambda (targets pool)
+    #t))
+
+
+; returns true if ALL of the items in targets are also included in pool.
+(define all-included?
+  (lambda (targets pool)
+    #t))
 
 
 (define circuits?
@@ -243,20 +285,20 @@
        (let 
            ((circuit-inputs (ckt-inputs ckt))
             (circuit-outupts (ckt-outputs ckt))
-            (gate-inputs (gate-inputs ckt))
-            (gate-outputs (gate-outputs ckt)))
+            (ckt-gate-inputs (all-gate-inputs (ckt-gates ckt)))
+            (ckt-gate-outputs (all-gate-outputs (ckt-gates ckt))))
          (cond
            ((not gate-outputs)                ; (3)
              #f)
-           ((any-included circuit-inputs 
-                          gate-outputs)       ; (1)
+           ((any-included? circuit-inputs 
+                          ckt-gate-outputs)       ; (1)
             #f)
-           ((not (all-included gate-inputs 
-                               (append gate-outputs 
+           ((not (all-included? ckt-gate-inputs 
+                               (append ckt-gate-outputs 
                                        circuit-inputs))) ; (2)
             #f)
-           ((not (all-included circuit-outputs
-                               (append gate-outputs
+           ((not (all-included? circuit-outputs
+                               (append ckt-gate-outputs
                                        circuit-inputs)))  ; (4)
             #f)
            (else #t)))))))
