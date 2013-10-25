@@ -343,21 +343,17 @@
                                                 ckt-gate-outputs))))
             #f)   ; fails if all wires are not symbols
            ((duplicates-in? ckt-gate-outputs)            ; (3)
-             ;(display "Failed condition 3")
               #f)
            ((any-included? circuit-inputs 
                           ckt-gate-outputs)              ; (1)
-            ;(display "Failed condition 1")
             #f)
            ((not (all-included? ckt-gate-inputs 
                                (append ckt-gate-outputs 
                                        circuit-inputs))) ; (2)
-            ;(display "Failed condition 2")
             #f)
            ((not (all-included? circuit-outputs
                                (append ckt-gate-outputs
                                        circuit-inputs)))  ; (4)
-           ;(display "Failed condition 4")
            #f)
            (else #t)))))))
             
@@ -655,9 +651,6 @@
                (apply b-nand (map value-in-config my-ins (list config config))))
               ((equal? 'not
                        my-fn)
-              ; (display (car my-ins))
-              ; (display config)
-              ; (display (value-in-config (car my-ins) config))
                (b-not (value-in-config (car my-ins) config)))
               ((equal? 'ident
                        my-fn)
@@ -792,8 +785,8 @@
      (map (lambda (wire) (value-in-config wire config))
           (ckt-outputs ckt))))
  
- (output-values ckt-eq1 eq1-config2) ;=> (1)
- (output-values ckt-latch latch-config2) ;=> (1 0)    
+ ;(output-values ckt-eq1 eq1-config2) ;=> (1)
+ ;(output-values ckt-latch latch-config2) ;=> (1 0)    
  
  
  (define zero-config
