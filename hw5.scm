@@ -1136,19 +1136,19 @@
     (nand (b q) q~))))
 
 
-; (circuit? ckt-register) => #t
-; (ckt-inputs ckt-register) => (set d3 d2 d1 d0)
-; (ckt-outputs ckt-register) => (q3 q2 q1 q0)
-
+; (circuit? ckt-register) ;=> #t
+; (ckt-inputs ckt-register) ;=> (set d3 d2 d1 d0)
+; (ckt-outputs ckt-register) ;=> (q3 q2 q1 q0)
+;
 ; (output-values 
 ;  ckt-register 
-;  (final-config ckt-register (init-config ckt-register '(1 1 0 0 1)))) => (1 0 0 1)
-
+;  (final-config ckt-register (init-config ckt-register '(1 1 0 0 1)))) ;=> (1 0 0 1)
+;
 ; (let* ((c1 (final-config ckt-register (init-config ckt-register '(1 0 1 0 1)))) 
 ;        (c2 (next '((set 0)) c1)) 
 ;        (c3 (next '((d3 1) (d2 1) (d1 0) (d0 0)) c2)) 
 ;        (c4 (next '((set 1)) c3))) 
 ;   (map (lambda (config) (output-values ckt-register config)) 
-;        (list c1 c2 c3 c4))) => ((0 1 0 1) (0 1 0 1) (0 1 0 1) (1 1 0 0))
+;        (list c1 c2 c3 c4))) ;=> ((0 1 0 1) (0 1 0 1) (0 1 0 1) (1 1 0 0))
 
 ;**************  end of hw # 5  ************************************
