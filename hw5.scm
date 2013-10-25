@@ -789,12 +789,11 @@
  
  (define output-values
    (lambda (ckt config)
-     (let ((outputs (ckt-outputs ckt))
-           (new-config (next-config ckt config)))
-       (map (lambda (wire) (value-in-config wire new-config))
-            outputs))))
- ;(output-values ckt-eq1 eq1-config2) ;=> (1)
- ;(output-values ckt-latch latch-config2) ;=> (1 0)    
+     (map (lambda (wire) (value-in-config wire config))
+          (ckt-outputs ckt))))
+ 
+ (output-values ckt-eq1 eq1-config2) ;=> (1)
+ (output-values ckt-latch latch-config2) ;=> (1 0)    
  
  
  (define zero-config
