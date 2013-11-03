@@ -2,8 +2,8 @@
 ; CS 201a HW #6  DUE Wednesday, November 6, 2012 at 11:59 pm, 
 ; via submit.
 ;************************************************************
-; Name:
-; Email address:
+; Name:  Mikayla Thompson
+; Email address:  mikayla.thompson@yale.edu
 ;************************************************************
 
 ; Computer science topics: 
@@ -22,7 +22,7 @@
 ; Modify the following definition to reflect the number of
 ; hours you spent on this assignment (including reading):
 
-(define hours 0)
+(define hours 3)
 
 ;************************************************************
 ; Random access memory (RAM)
