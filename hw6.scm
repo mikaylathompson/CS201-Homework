@@ -120,7 +120,28 @@
  ;(ram-read 5 ram-ex1) ;=> (1 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1)
  ;(ram-read 6 ram-ex1) ;=> (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
  
+; normalize is going to search for the smallest adress, remove
+; it from the list, and then cons it to the sorted remainder
+; of the list.
+
+ (define normalize
+   (lambda (ram)
+     (if (null? ram)
+         '()
+         (let ((smallest (apply (min (map car ram)))))
+           (cons (list smallest (ram-read smallest))
+                 (normalize (remove-entry (smallest ram))))))))
  
+ (define remove-entry
+   (lambda (addr ram)
+     (cond
+       ((null? ram) 
+        ram)
+       ((equal? (caar ram) addr) 
+        (cdr ram-ex2))
+       (else (cons (car ram)
+                   (remove-entry addr (cdr ram)))))))
+       
  
 
 ;************************************************************
