@@ -109,6 +109,20 @@
 ;    (1 (0 0 1 1 0 0 1 1 0 0 1 1 0 0 1 1)))
 ;************************************************************
 
+(define ram-read
+  (lambda (address ram)
+    (cond
+      ((null? ram) '(0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0))
+      ((equal? address (caar ram)) (cdar ram))
+      (else (ram-read address (cdr ram))))))
+
+ ;(ram-read 0 ram-ex1) ;=> (0 0 0 1 0 0 0 0 0 0 0 0 0 1 0 0)
+ ;(ram-read 5 ram-ex1) ;=> (1 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1)
+ ;(ram-read 6 ram-ex1) ;=> (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+ 
+ 
+ 
+
 ;************************************************************
 ; ** problem 2 ** (10 points)
 ; Write four procedures:
