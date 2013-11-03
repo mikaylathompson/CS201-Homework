@@ -113,35 +113,82 @@
   (lambda (address ram)
     (cond
       ((null? ram) '(0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0))
-      ((equal? address (caar ram)) (cdar ram))
+      ((equal? address (caar ram)) (cadar ram))
       (else (ram-read address (cdr ram))))))
 
  ;(ram-read 0 ram-ex1) ;=> (0 0 0 1 0 0 0 0 0 0 0 0 0 1 0 0)
  ;(ram-read 5 ram-ex1) ;=> (1 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1)
  ;(ram-read 6 ram-ex1) ;=> (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
  
-; normalize is going to search for the smallest adress, remove
-; it from the list, and then cons it to the sorted remainder
-; of the list.
-
- (define normalize
-   (lambda (ram)
-     (if (null? ram)
-         '()
-         (let ((smallest (apply (min (map car ram)))))
-           (cons (list smallest (ram-read smallest))
-                 (normalize (remove-entry (smallest ram))))))))
- 
+ ; remove-entry removes the specified address from ram.
  (define remove-entry
    (lambda (addr ram)
      (cond
        ((null? ram) 
         ram)
        ((equal? (caar ram) addr) 
-        (cdr ram-ex2))
+        (cdr ram))
        (else (cons (car ram)
                    (remove-entry addr (cdr ram)))))))
+
+; sort-ram is going to search for the smallest adress, remove
+; it from the list, and then cons it to the sorted remainder
+; of the list.
+ (define sort-ram
+   (lambda (ram)
+      (if (null? ram)
+         '()
+         (let ((smallest (apply min (map car ram))))
+           (cons (list smallest (ram-read smallest ram))
+                 (sort-ram (remove-entry smallest ram)))))))
+ 
+ ; adds entries of zero to registers that are missing in
+ ; a sorted ram.
+ (define fill-ram
+   (lambda (ram num)
+     (if (null? ram)
+         '()
+         (let ((largest (apply max (map car ram))))
+           (cond
+             ((< num largest)
+              (cons (list num (ram-read num ram))
+                    (if (= num (caar ram))
+                        (fill-ram (cdr ram) (+ 1 num))
+                        (fill-ram ram (+ 1 num)))))
+             (else
+               ram))))))
+ 
+ ; given a ram in reverse sorted order, trim-zeros removes
+ ; any leading entries of zero, and returns the register,
+ ; still reversed.
+ (define trim-zeros
+   (lambda (rev-ram)
+     (cond
+       ((null? rev-ram)
+         '())
+       ((equal? '(0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+                (cadar rev-ram))
+        (trim-zeros (cdr rev-ram)))
+       (else
+        rev-ram))))
+   
+; normalize is going to call sort ram, and then relabel the addresses
+; in consecutive order.
+ (define normalize
+   (lambda (ram)
+     (reverse 
+      (trim-zeros 
+       (reverse 
+        (fill-ram 
+         (sort-ram ram) 
+         0))))))
        
+    
+ 
+ (equal? (normalize ram-ex1) ram-ex1) ;=> #t
+ (equal? (normalize ram-ex2) ram-ex1) ;=> #t
+ 
+
  
 
 ;************************************************************
@@ -256,7 +303,7 @@
 ; of pc.  Note that the sum should be taken
 ; modulo 4096.  (Scheme has a modulo procedure.)
 
-; (load address config)
+; (xload address config)
 ; takes a memory address and a TC-201 configuration
 ; and returns the TC-201 configuration
 ; that is obtained by loading the contents
@@ -287,13 +334,13 @@
 ;    (run-flag (0))
 ;    (aeb (1)))
 
-; (config-cpu (load 4 config1)) =>
+; (config-cpu (xload 4 config1)) =>
 ;   ((acc (0 0 0 0 0 0 0 0 0 0 1 0 1 0 1 0))
 ;    (pc (0 0 0 0 0 0 0 0 0 1 1 1))
 ;    (run-flag (1))
 ;    (aeb (0)))
 
-; (config-cpu (load 12 config1)) =>
+; (config-cpu (xload 12 config1)) =>
 ;   ((acc (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0))
 ;    (pc (0 0 0 0 0 0 0 0 0 1 1 1))
 ;    (run-flag (1))
