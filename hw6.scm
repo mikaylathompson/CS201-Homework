@@ -653,7 +653,7 @@
 (define output
   (lambda (config)
     (display "output = ")
-    (display (bits->int (cadar (config-cpu config1))))
+    (display (bits->int (cadar (config-cpu config))))
     (newline)
     config))
 
@@ -739,7 +739,7 @@
 
 (define skippos
   (lambda (config)
-    (incr-pc (if (< 0 (bits->int (cadar (config-cpu config))))
+    (incr-pc (if (> (bits->int (cadar (config-cpu config))) 0)
                     2
                     1)
              config)))
@@ -770,7 +770,7 @@
 ; modulo 4096 -- see incr-pc in problem 3.
 
 ; Examples:
-; (jump 1 config1) =>
+;(config-cpu (jump 1 config1)) ;=>
 ;   (((acc (0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1))
 ;     (pc (0 0 0 0 0 0 0 0 0 0 0 1))
 ;     (run-flag (1))
@@ -782,7 +782,7 @@
 ;     (4 (0 0 0 0 0 0 0 0 0 0 1 0 1 0 1 0))
 ;     (5 (1 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1))))
 
-; (config-cpu (jump 20 config1)) =>
+; (config-cpu (jump 20 config1)) ;=>
 ;   ((acc (0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1))
 ;    (pc (0 0 0 0 0 0 0 1 0 1 0 0))
 ;    (run-flag (1))
@@ -992,6 +992,9 @@
 
 (define next-config
   (lambda (config)
+    (display (list "\nline: " (bits->int (cadr (cadar config)))
+                   "\ninstr: " (get-instr config)
+                   "\ncontents: " (get-contents config) "\n")) 
     (if (halt? config)
         (set-rf config 0)
         (incr-pc 1
@@ -1258,17 +1261,17 @@
 ;************************************************************
 
 (define sum-prog
-  '((input)
-    (skipzero)
-    (jump 4)
-    (jump 7)
-    (add 10)
-    (store 10)
-    (jump 0)
-    (load 10)
-    (output)
-    (halt)
-    (data 0)))
+  '((input)       ; 0
+    (skipzero)    ; 1
+    (jump 4)      ; 2
+    (jump 7)      ; 3
+    (add 10)      ; 4
+    (store 10)    ; 5
+    (jump 0)      ; 6
+    (load 10)     ; 7
+    (output)      ; 8
+    (halt)        ; 9
+    (data 0)))    ; 10
 
 (simulate 100 (salo sum-prog))
  
