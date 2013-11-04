@@ -259,12 +259,21 @@
       ((> i 0) (extract (- i 1) (- j 1) (cdr lst)))
       ((= j 0) (list (car lst)))
       ((= i 0) (cons (car lst)
-                     (extract 0 (- j 1) lst)))
+                     (extract 0 (- j 1) (cdr lst))))
       (else 'error))))
 
-(extract 1 3 '(a b c d e))
-(extract 4 4 '(a b c d e))
+; (extract 1 3 '(a b c d e))
+; (extract 4 4 '(a b c d e))
 
+(define exactly
+  (lambda (i lst)
+    (cond
+      ((= i (length lst)) lst)
+      ((< i (length lst)) (exactly i (cdr lst)))
+      (else (exactly i (cons 0 lst))))))
+
+;(exactly 3 '(a b c d e))
+;(exactly 8 '(a b c d e))
 
 ;************************************************************
 ; Next we develop a simulator for the TC-201
