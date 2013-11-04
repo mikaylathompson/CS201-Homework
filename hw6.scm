@@ -708,6 +708,14 @@
 ; the program counter contains the given address.
 ; All other registers are unaffected.
 
+(define jump
+  (lambda (address config)
+    (list (list (car (config-cpu config))
+                (list 'pc (exactly 12 (int->bits address)))
+                (caddr (config-cpu config))
+                (cadddr (config-cpu config)))
+          (config-ram config))))
+
 ; (skipzero config)
 ; takes a TC-201 configuration
 ; and returns a TC-201 configuration in which
