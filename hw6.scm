@@ -755,7 +755,12 @@
 ; returned configuration, the aeb is set to 0.
 ; All other registers are unaffected.
 
-(define skiperr 0)
+(define skiperr
+  (lambda (config)
+    (incr-pc (if (= 1 (caadr (cadddr (config-cpu config))))
+                 2
+                 1)
+             config)))
 
 
 ; Note: the program counter (pc) is incremented
@@ -792,25 +797,25 @@
 ;    (run-flag (0))
 ;    (aeb (1)))
 
-  (config-cpu (skippos config2)) ;=>
+;  (config-cpu (skippos config2)) ;=>
 ;    ((acc (0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1))
 ;     (pc (0 0 0 0 0 0 0 0 1 0 1 0))
 ;     (run-flag (0))
 ;     (aeb (1)))
 
- (config-cpu (skippos (list '((acc (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)) (pc (0 0 0 0 0 0 0 0 0 0 0 1)) (run-flag (0)) (aeb (1))) ram-ex1))) ;=>
+; (config-cpu (skippos (list '((acc (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)) (pc (0 0 0 0 0 0 0 0 0 0 0 1)) (run-flag (0)) (aeb (1))) ram-ex1))) ;=>
 ;   ((acc (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0))
 ;    (pc (0 0 0 0 0 0 0 0 0 0 1 0))
 ;    (run-flag (0))
 ;    (aeb (1)))
 
-; (config-cpu (skiperr config1)) =>
+; (config-cpu (skiperr config1)) ;=>
 ;   ((acc (0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1))
 ;    (pc (0 0 0 0 0 0 0 0 1 0 0 0))
 ;    (run-flag (1))
 ;    (aeb (0)))
 
-;  (config-cpu (skiperr config2)) =>
+;  (config-cpu (skiperr config2)) ;=>
 ;    ((acc (0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1))
 ;     (pc (0 0 0 0 0 0 0 0 1 0 1 0))
 ;     (run-flag (0))
