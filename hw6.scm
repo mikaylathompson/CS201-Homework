@@ -381,7 +381,6 @@
 ; The values of other all registers (including the pc)
 ; are unchanged.
 
-
 ; Examples:
 ; (config-cpu (incr-pc 1 config1)) =>
 ;   ((acc (0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1))
@@ -450,8 +449,12 @@
             (config-ram config)))))
 
 
-
-
+(define store
+  (lambda (address config)
+    (list (config-cpu config)
+          (ram-write address 
+                     (cadar (config-cpu config))
+                     (config-ram config)))))
 
 
 ;************************************************************
