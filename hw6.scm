@@ -622,19 +622,17 @@
 (define input
   (lambda (config)
     (let* ((value (begin (display "input = ") (read)))
-          (new-acc (aeb-add-bits '(0) (int->bits value)))
-          (cpu (config-cpu config)))
-;      (display (list
-;                "value" value
-;                "\naeb" (car new-acc)
-;                "\nacc" (cadr new-acc) (bits->int (cadr new-acc))))
+           (new-acc (aeb-add-bits '(0) (int->bits value)))
+           (cpu (config-cpu config)))
+      ;      (display (list
+      ;                "value" value
+      ;                "\naeb" (car new-acc)
+      ;                "\nacc" (cadr new-acc) (bits->int (cadr new-acc))))
       (list (list (list 'acc 
                         (exactly 16 (cadr new-acc)))
-                  ;(if (= 0 (caar new-acc))
-                      ;(cdr cpu)
-                      (list (cadr cpu)
-                            (caddr cpu)
-                            (list 'aeb (car new-acc))));)
+                  (cadr cpu)
+                  (caddr cpu)
+                  (list 'aeb (car new-acc)))
             (config-ram config)))))
        
 
@@ -1272,7 +1270,7 @@
     (halt)
     (data 0)))
 
-(simulate 1 (salo sum-prog))
+(simulate 100 (salo sum-prog))
  
  
 ;************************************************************
