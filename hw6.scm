@@ -964,6 +964,12 @@
                    (bits->int (cadadr (config-cpu config)))
                    (config-ram config))))))
 
+(define get-contents
+  (lambda (config)
+    (bits->int (exactly 12 (ram-read 
+                            (bits->int (cadadr (config-cpu config)))
+                            (config-ram config))))))
+
 (define halt?
   (lambda (config)
     (let ((instr (get-instr config)))
@@ -985,20 +991,20 @@
   (lambda (config)
     (if (halt? config)
         (set-rf config 0)
-        (incr-pc
-         (case (get-instr config)
-           ((1) 'load)
-           ((2) 'store)
-           ((3) 'add)
-           ((4) 'sub)
-           ((5) 'input)
-           ((6) 'output)
-           ((7) 'jump)
-           ((8) 'skipzero)
-           ((9) 'skippos)
-           ((10) 'skiperr)
-           ((11) 'loadi)
-           ((12) 'storei))))))
+        (incr-pc 1
+                 (case (get-instr config)
+                   ((1) (xload (get-contents config) config))
+                   ((2) (store (get-contents config) config))
+                   ((3) (add (get-contents config) config))
+                   ((4) (sub (get-contents config) config))
+                   ((5) (input config))
+                   ((6) (output config))
+                   ((7) (jump (get-contents config) config))
+                   ((8) (skipzero config))
+                   ((9) (skippos config))
+                   ((10) (skiperr config))
+                   ((11) (loadi (get-contents config) config))
+                   ((12) (storei (get-contents config) config)))))))
             
 ;    0000    halt -- stops execution
 ;    0001    load -- copies contents of memory word to accumulator
