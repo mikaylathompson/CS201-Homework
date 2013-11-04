@@ -254,7 +254,7 @@
 ;************************************************************
 
 (define powers-of-two
-  '(32768 16384 8192 4096 2048 1024 512 256 128 64 32 16 8 4 2 1))
+  '(0 16384 8192 4096 2048 1024 512 256 128 64 32 16 8 4 2 1))
 
 (define extract
   (lambda (i j lst)
@@ -280,10 +280,12 @@
 
 (define bits->int
   (lambda (bits)
-    (apply +
-           (map *
-                bits
-                (exactly (length bits) powers-of-two)))))
+    (if (and (= 16 (length bits))
+             (= 1 (car bits)))
+        (* -1 (apply + (map * bits (exactly (length bits) 
+                                  powers-of-two))))
+        (apply + (map * bits (exactly (length bits) 
+                                  powers-of-two))))))
 ;(bits->int '(1 0))
 ;(bits->int '(0 0 0 1 1 0))
 
@@ -469,6 +471,33 @@
 ; and returns a TC-201 configuration in which
 ; the contents of the memory register addressed has
 ; been added to the contents of the accumulator.
+
+; add-bits takes two binary numbers, and returns their sum
+; in binary.
+(define add-bits
+  (lambda (m n)
+    (int->bits (+ (bits->int m)
+                  (bits->int n)))))
+
+(define add
+  (lambda (address config)
+    (let* ((cpu (config-cpu config))
+           (ram (config-ram config))
+           (acc (cadar cpu))
+           (old-adr (ram-read address ram))
+           (temp-acc (add-bits acc old-adr))
+           (aeb (if (< 32768 (abs (temp-acc)))
+                    '(0) '(1)))
+           (new-acc (if (= 1 (car aeb))
+                        (modulo temp-acc 32768)
+                        temp-acc)))
+      (list (list 
+             (list 'acc new-acc)
+             (cadr cpu)
+             (caddr cpu)
+             (list 'aeb aeb))
+            ram))))
+                
 
 ; (sub address config) is similar, except that the
 ; contents of the memory register addressed has
