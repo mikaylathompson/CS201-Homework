@@ -724,6 +724,13 @@
 ; and is increased by 1 otherwise.
 ; All other registers are unaffected.
 
+(define skipzero
+  (lambda (config)
+    (incr-pc (if (= 0 (bits->int (cadar (config-cpu config))))
+                    2
+                    1)
+             config)))
+
 ; (skippos config)
 ; takes a TC-201 configuration
 ; and returns a TC-201 configuration in which
@@ -731,6 +738,13 @@
 ; if the accumulator contains a strictly positive
 ; number (not zero), and is increased by 1 otherwise.
 ; All other registers are unaffected.
+
+(define skippos
+  (lambda (config)
+    (incr-pc (if (< 0 (bits->int (cadar (config-cpu config))))
+                    2
+                    1)
+             config)))
 
 ; (skiperr config)
 ; takes a TC-201 configuration
@@ -740,6 +754,9 @@
 ; is increased by 1 otherwise.  In the
 ; returned configuration, the aeb is set to 0.
 ; All other registers are unaffected.
+
+(define skiperr 0)
+
 
 ; Note: the program counter (pc) is incremented
 ; modulo 4096 -- see incr-pc in problem 3.
@@ -763,25 +780,25 @@
 ;    (run-flag (1))
 ;    (aeb (0)))
 
-; (config-cpu (skipzero config1)) =>
+; (config-cpu (skipzero config1)) ;=>
 ;   ((acc (0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1))
 ;    (pc (0 0 0 0 0 0 0 0 1 0 0 0))
 ;    (run-flag (1))
 ;    (aeb (0)))
 
-; (config-cpu (skipzero (list '((acc (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)) (pc (0 0 0 0 0 0 0 0 0 0 0 1)) (run-flag (0)) (aeb (1))) ram-ex1))) =>
+; (config-cpu (skipzero (list '((acc (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)) (pc (0 0 0 0 0 0 0 0 0 0 0 1)) (run-flag (0)) (aeb (1))) ram-ex1))) ;=>
 ;   ((acc (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0))
 ;    (pc (0 0 0 0 0 0 0 0 0 0 1 1))
 ;    (run-flag (0))
 ;    (aeb (1)))
 
-;  (config-cpu (skippos config2)) =>
+  (config-cpu (skippos config2)) ;=>
 ;    ((acc (0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1))
 ;     (pc (0 0 0 0 0 0 0 0 1 0 1 0))
 ;     (run-flag (0))
 ;     (aeb (1)))
 
-; (config-cpu (skippos (list '((acc (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)) (pc (0 0 0 0 0 0 0 0 0 0 0 1)) (run-flag (0)) (aeb (1))) ram-ex1))) =>
+ (config-cpu (skippos (list '((acc (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)) (pc (0 0 0 0 0 0 0 0 0 0 0 1)) (run-flag (0)) (aeb (1))) ram-ex1))) ;=>
 ;   ((acc (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0))
 ;    (pc (0 0 0 0 0 0 0 0 0 0 1 0))
 ;    (run-flag (0))
