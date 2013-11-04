@@ -1101,6 +1101,33 @@
 ; 32767.  A program is a list of instructions and
 ; data statements.
 
+(define prog-to-register
+  (lambda (prog)
+    (cond
+      ((equal? 'data (car prog))
+       (exactly 16 (int->bits (cadr prog))))
+      ((equal? 'halt (car prog))
+       (exactly 16 '(0)))
+      ((equal?
+      (else (exactly 16 '(0))))))
+
+(define add-prog-to-ram
+  (lambda (prog ram)
+    (if (null? prog)
+        ram
+        (cons (list (length ram)
+                    (prog-to-register (car prog)))
+              (add-prog-to-ram (cdr prog) ram)))))
+
+(define salo
+  (lambda (prog)
+    (list (list (list 'acc (exactly 16 '(0)))
+                (list 'pc (exactly 12 '(0)))
+                (list 'run-flag '(1))
+                (list 'aeb '(0)))
+          (normalize (add-prog-to-ram prog '() )))))
+
+
 ; Examples:
 
 ; (salo '((data 1) (data -2) (data 32767))) =>
