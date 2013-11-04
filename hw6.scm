@@ -363,8 +363,8 @@
 ; and returns the TC-201 configuration
 ; that is obtained by adding n to the value
 ; of pc.  Note that the sum should be taken
-; modulo 4096.  (Scheme has a modulo procedure.)
-
+; modulo 4096.  (Scheme has a modulo procedure.
+      
 ; (xload address config)
 ; takes a memory address and a TC-201 configuration
 ; and returns the TC-201 configuration
@@ -380,6 +380,7 @@
 ; into the given memory address.
 ; The values of other all registers (including the pc)
 ; are unchanged.
+
 
 ; Examples:
 ; (config-cpu (incr-pc 1 config1)) =>
@@ -427,6 +428,31 @@
 ;    (7 (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0))
 ;    (8 (0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1)))
 ;************************************************************
+
+(define incr-pc
+  (lambda (n config)
+    (let* ((cpu (config-cpu config))
+           (old-count (bits->int (cadadr cpu)))
+           (new-count (modulo (+ old-count n) 4096))
+           (counter (exactly 12 (int->bits new-count))))
+      (list (list (car cpu)
+                  (list 'pc counter)
+                  (caddr cpu)
+                  (cadddr cpu))
+            (config-ram config)))))
+
+
+(define xload
+  (lambda (address config)
+    (let* ((new-acc (ram-read address (config-ram config))))
+      (list (cons (list 'acc new-acc)
+                  (cdr (config-cpu config)))
+            (config-ram config)))))
+
+
+
+
+
 
 ;************************************************************
 ; ** problem 4 ** (10 points)
