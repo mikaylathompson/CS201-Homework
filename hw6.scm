@@ -182,14 +182,29 @@
         (fill-ram 
          (sort-ram ram) 
          0))))))
-       
-    
- 
- (equal? (normalize ram-ex1) ram-ex1) ;=> #t
- (equal? (normalize ram-ex2) ram-ex1) ;=> #t
- 
 
+; (equal? (normalize ram-ex1) ram-ex1) ;=> #t
+; (equal? (normalize ram-ex2) ram-ex1) ;=> #t
  
+; (ram-write address contents ram)
+(define ram-write
+  (lambda (address contents ram)
+    (normalize
+     (cons (list address contents)
+           (remove-entry address
+                         ram)))))
+
+
+; (equal? (ram-write 3 '(1 1 1 1 0 0 0 0 1 1 1 1 0 0 0 0) ram-ex1); =>
+;   '((0 (0 0 0 1 0 0 0 0 0 0 0 0 0 1 0 0))
+;    (1 (0 0 1 0 0 0 0 0 0 0 0 0 0 1 0 1))
+;    (2 (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0))
+;    (3 (1 1 1 1 0 0 0 0 1 1 1 1 0 0 0 0))
+;    (4 (0 0 0 0 0 0 0 0 0 0 1 0 1 0 1 0))
+;    (5 (1 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1))))
+; (equal? (ram-write 1 '(0 0 1 1 0 0 1 1 0 0 1 1 0 0 1 1) '()) ;=>
+;   '((0 (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0))
+;    (1 (0 0 1 1 0 0 1 1 0 0 1 1 0 0 1 1))))
 
 ;************************************************************
 ; ** problem 2 ** (10 points)
