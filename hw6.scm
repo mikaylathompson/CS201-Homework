@@ -957,6 +957,62 @@
 ; at that location is fetched and executed,
 ; and the resulting configuration is returned.
 
+(define get-instr
+  (lambda (config)
+    (bits->int 
+     (extract 0 3 (ram-read 
+                   (bits->int (cadadr (config-cpu config)))
+                   (config-ram config))))))
+
+(define halt?
+  (lambda (config)
+    (let ((instr (get-instr config)))
+    (cond
+      ((= 0 (caadr (caddr (config-cpu config)))) #t)
+      ((< 12 instr) #t)
+      ((= 0 instr) #t)
+      (else #f)))))
+
+(define set-rf
+  (lambda (config rf)
+    (cons (list (caar config)
+                (cadar config)
+                (list 'run-flag (list rf))
+                (caddr (cdar config)))
+          (cdr config))))
+
+(define next-config
+  (lambda (config)
+    (if (halt? config)
+        (set-rf config 0)
+        (incr-pc
+         (case (get-instr config)
+           ((1) 'load)
+           ((2) 'store)
+           ((3) 'add)
+           ((4) 'sub)
+           ((5) 'input)
+           ((6) 'output)
+           ((7) 'jump)
+           ((8) 'skipzero)
+           ((9) 'skippos)
+           ((10) 'skiperr)
+           ((11) 'loadi)
+           ((12) 'storei))))))
+            
+;    0000    halt -- stops execution
+;    0001    load -- copies contents of memory word to accumulator
+;    0010    store -- copies contents of accumulator to memory word
+;    0011    add -- adds the contents of memory word to accumulator
+;    0100    sub -- subtracts the contents of memory word from accumulator
+;    0101    input -- copies number from user to accumulator
+;    0110    output -- copies number from accumulator to user
+;    0111    jump -- copies address to program counter, execution "jumps" there
+;    1000    skipzero -- skips if accumulator contains 0
+;    1001    skippos -- skips if accumulator contains a positive number
+;    1010    skiperr -- skips if AEB is 1 and sets it to 0
+
+
 ; This example is useful for testing next-config.
 
 (define cpu-ex4
