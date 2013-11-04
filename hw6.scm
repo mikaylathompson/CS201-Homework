@@ -840,6 +840,12 @@
 ; from which the contents are loaded into the accumulator.
 ; All other registers are unaffected.
 
+(define loadi
+  (lambda (address config)
+    (xload (bits->int (exactly 12 (ram-read address (config-ram config))))
+           config)))
+      
+
 ; (storei address config)
 ; takes a memory address and a TC-201 configuration
 ; and returns a TC-201 configuration that reflects
@@ -850,6 +856,11 @@
 ; are extracted and used as the memory address
 ; to which the contents of the accumulator are copied.
 ; All other registers are unaffected.
+
+(define storei
+  (lambda (address config)
+    (store (bits->int (exactly 12 (ram-read address (config-ram config))))
+           config)))
 
 ; This example is useful for loadi and storei testing.
 
@@ -864,7 +875,7 @@
 (define config3 (list cpu-ex1 ram-ex3))
 
 ; Examples:
-; (loadi 0 config3) =>
+; (loadi 0 config3); =>
 ;   (((acc (0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0))
 ;     (pc (0 0 0 0 0 0 0 0 0 1 1 1))
 ;     (run-flag (1))
@@ -876,7 +887,7 @@
 ;     (4 (0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0))
 ;     (5 (0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1))))
 
-; (storei 0 config1) =>
+; (storei 0 config1) ;=>
 ;   (((acc (0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1))
 ;     (pc (0 0 0 0 0 0 0 0 0 1 1 1))
 ;     (run-flag (1))
@@ -888,7 +899,7 @@
 ;     (4 (0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1))
 ;     (5 (1 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1))))
 
-; (loadi 1 config1) =>
+; (loadi 1 config1) ;=>
 ;   (((acc (1 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1))
 ;     (pc (0 0 0 0 0 0 0 0 0 1 1 1))
 ;     (run-flag (1))
@@ -900,7 +911,7 @@
 ;     (4 (0 0 0 0 0 0 0 0 0 0 1 0 1 0 1 0))
 ;     (5 (1 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1))))
 
-; (storei 1 config1) =>
+; (storei 1 config1) ;=>
 ;   (((acc (0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1))
 ;     (pc (0 0 0 0 0 0 0 0 0 1 1 1))
 ;     (run-flag (1))
