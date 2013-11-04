@@ -1006,18 +1006,6 @@
                    ((11) (loadi (get-contents config) config))
                    ((12) (storei (get-contents config) config)))))))
             
-;    0000    halt -- stops execution
-;    0001    load -- copies contents of memory word to accumulator
-;    0010    store -- copies contents of accumulator to memory word
-;    0011    add -- adds the contents of memory word to accumulator
-;    0100    sub -- subtracts the contents of memory word from accumulator
-;    0101    input -- copies number from user to accumulator
-;    0110    output -- copies number from accumulator to user
-;    0111    jump -- copies address to program counter, execution "jumps" there
-;    1000    skipzero -- skips if accumulator contains 0
-;    1001    skippos -- skips if accumulator contains a positive number
-;    1010    skiperr -- skips if AEB is 1 and sets it to 0
-
 
 ; This example is useful for testing next-config.
 
@@ -1108,16 +1096,35 @@
        (exactly 16 (int->bits (cadr prog))))
       ((equal? 'halt (car prog))
        (exactly 16 '(0)))
-      ((equal?
+      ((equal? 'load (car prog))
+       (append '(0 0 0 1) (exactly 12 (int->bits (cadr prog)))))
+      ((equal? 'store (car prog))
+       (append '(0 0 1 0) (exactly 12 (int->bits (cadr prog)))))
+      ((equal? 'add (car prog))
+       (append '(0 0 1 1) (exactly 12 (int->bits (cadr prog)))))
+      ((equal? 'sub (car prog))
+       (append '(0 1 0 0) (exactly 12 (int->bits (cadr prog)))))
+      ((equal? 'input (car prog))
+       (exactly 16 '(1 0 1)))
+      ((equal? 'output (car prog))
+       (exactly 16 '(1 1 0)))
+      ((equal? 'jump (car prog))
+       (append '(0 1 1 1) (exactly 12 (int->bits (cadr prog)))))
+      ((equal? 'skipzero (car prog))
+       (exactly 16 '(1 0 0 0)))
+      ((equal? 'skippos (car prog))
+       (exactly 16 '(1 0 0 1)))
+      ((equal? 'skiperr (car prog))
+       (exactly 16 '(1 0 1 0)))
       (else (exactly 16 '(0))))))
-
+    
 (define add-prog-to-ram
-  (lambda (prog ram)
+  (lambda (prog ram n)
     (if (null? prog)
         ram
-        (cons (list (length ram)
+        (cons (list n
                     (prog-to-register (car prog)))
-              (add-prog-to-ram (cdr prog) ram)))))
+              (add-prog-to-ram (cdr prog) ram (+ 1 n))))))
 
 (define salo
   (lambda (prog)
@@ -1125,12 +1132,12 @@
                 (list 'pc (exactly 12 '(0)))
                 (list 'run-flag '(1))
                 (list 'aeb '(0)))
-          (normalize (add-prog-to-ram prog '() )))))
+          (normalize (add-prog-to-ram prog '() 0)))))
 
 
 ; Examples:
 
-; (salo '((data 1) (data -2) (data 32767))) =>
+; (salo '((data 1) (data -2) (data 32767))) ;=>
 ;   (((acc (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0))
 ;     (pc (0 0 0 0 0 0 0 0 0 0 0 0))
 ;     (run-flag (1))
@@ -1138,14 +1145,14 @@
 ;    ((0 (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1))
 ;     (1 (1 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0))
 ;     (2 (0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1))))
-
-; (config-cpu (salo '((load 3) (store 4) (halt)))) =>
+;(newline)
+; (salo '((load 3) (store 4) (halt))) ;=>
 ;   ((acc (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0))
 ;    (pc (0 0 0 0 0 0 0 0 0 0 0 0))
 ;    (run-flag (1))
 ;    (aeb (0)))
-
-; (config-ram (salo '((load 3) (store 4) (halt) (data 15) (data 16) (data 17)))) =>
+;(newline)
+;(salo '((load 3) (store 4) (halt) (data 15) (data 16) (data 17))) ;=>
 ;   ((0 (0 0 0 1 0 0 0 0 0 0 0 0 0 0 1 1))
 ;    (1 (0 0 1 0 0 0 0 0 0 0 0 0 0 1 0 0))
 ;    (2 (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0))
