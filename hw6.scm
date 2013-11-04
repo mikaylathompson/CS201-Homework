@@ -624,10 +624,10 @@
     (let* ((value (begin (display "input = ") (read)))
           (new-acc (aeb-add-bits '(0) (int->bits value)))
           (cpu (config-cpu config)))
-      (display (list
-                "value" value
-                "\naeb" (car new-acc)
-                "\nacc" (cadr new-acc) (bits->int (cadr new-acc))))
+;      (display (list
+;                "value" value
+;                "\naeb" (car new-acc)
+;                "\nacc" (cadr new-acc) (bits->int (cadr new-acc))))
       (list (list (list 'acc 
                         (exactly 16 (cadr new-acc)))
                   ;(if (= 0 (caar new-acc))
@@ -757,10 +757,15 @@
 
 (define skiperr
   (lambda (config)
-    (incr-pc (if (= 1 (caadr (cadddr (config-cpu config))))
+    (let ((nconfig (incr-pc (if (= 1 (caadr (cadddr (config-cpu config))))
                  2
                  1)
              config)))
+      (list (list (caar nconfig)
+                  (cadar nconfig)
+                  (caddar nconfig)
+                  (list 'aeb '(0)))
+            (config-ram nconfig)))))
 
 
 ; Note: the program counter (pc) is incremented
@@ -1105,17 +1110,17 @@
       ((equal? 'sub (car prog))
        (append '(0 1 0 0) (exactly 12 (int->bits (cadr prog)))))
       ((equal? 'input (car prog))
-       (exactly 16 '(1 0 1)))
+       (append '(0 1 0 1) (exactly 12 '(0))))
       ((equal? 'output (car prog))
-       (exactly 16 '(1 1 0)))
+       (append '(0 1 1 0) (exactly 12 '(0))))
       ((equal? 'jump (car prog))
        (append '(0 1 1 1) (exactly 12 (int->bits (cadr prog)))))
       ((equal? 'skipzero (car prog))
-       (exactly 16 '(1 0 0 0)))
+       (append '(1 0 0 0) (exactly 12 '(0))))
       ((equal? 'skippos (car prog))
-       (exactly 16 '(1 0 0 1)))
+       (append '(1 0 0 1) (exactly 12 '(0))))
       ((equal? 'skiperr (car prog))
-       (exactly 16 '(1 0 1 0)))
+       (append '(1 0 1 0) (exactly 12 '(0))))
       (else (exactly 16 '(0))))))
     
 (define add-prog-to-ram
@@ -1185,7 +1190,7 @@
       ((= 0 n)
        '())
       ((= 0 (caadr (caddr (config-cpu config))))
-       config)
+       (list config))
       (else
        (cons config (simulate (- n 1) (next-config config)))))))
 
@@ -1202,43 +1207,43 @@
 
 ; Examples: 
 
-(equal? (simulate 5 config4) ;=>
- '((((acc (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0))
-    (pc (0 0 0 0 0 0 0 0 0 0 0 0))
-    (run-flag (1))
-    (aeb (0)))
-   ((0 (0 0 0 1 0 0 0 0 0 0 0 0 0 0 1 1))
-    (1 (0 0 1 0 0 0 0 0 0 0 0 0 0 1 0 0))
-    (2 (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0))
-    (3 (0 0 0 0 0 0 0 0 0 1 0 1 0 1 0 1))
-    (4 (1 1 1 1 1 1 1 1 0 0 0 0 0 0 0 0))))
-  (((acc (0 0 0 0 0 0 0 0 0 1 0 1 0 1 0 1))
-    (pc (0 0 0 0 0 0 0 0 0 0 0 1))
-    (run-flag (1))
-    (aeb (0)))
-   ((0 (0 0 0 1 0 0 0 0 0 0 0 0 0 0 1 1))
-    (1 (0 0 1 0 0 0 0 0 0 0 0 0 0 1 0 0))
-    (2 (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0))
-    (3 (0 0 0 0 0 0 0 0 0 1 0 1 0 1 0 1))
-    (4 (1 1 1 1 1 1 1 1 0 0 0 0 0 0 0 0))))
-  (((acc (0 0 0 0 0 0 0 0 0 1 0 1 0 1 0 1))
-    (pc (0 0 0 0 0 0 0 0 0 0 1 0))
-    (run-flag (1))
-    (aeb (0)))
-   ((0 (0 0 0 1 0 0 0 0 0 0 0 0 0 0 1 1))
-    (1 (0 0 1 0 0 0 0 0 0 0 0 0 0 1 0 0))
-    (2 (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0))
-    (3 (0 0 0 0 0 0 0 0 0 1 0 1 0 1 0 1))
-    (4 (0 0 0 0 0 0 0 0 0 1 0 1 0 1 0 1))))
-  (((acc (0 0 0 0 0 0 0 0 0 1 0 1 0 1 0 1))
-    (pc (0 0 0 0 0 0 0 0 0 0 1 0))
-    (run-flag (0))
-    (aeb (0)))
-   ((0 (0 0 0 1 0 0 0 0 0 0 0 0 0 0 1 1))
-    (1 (0 0 1 0 0 0 0 0 0 0 0 0 0 1 0 0))
-    (2 (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0))
-    (3 (0 0 0 0 0 0 0 0 0 1 0 1 0 1 0 1))
-    (4 (0 0 0 0 0 0 0 0 0 1 0 1 0 1 0 1))))))
+;(equal? (simulate 5 config4) ;=>
+; '((((acc (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0))
+;    (pc (0 0 0 0 0 0 0 0 0 0 0 0))
+;    (run-flag (1))
+;    (aeb (0)))
+;   ((0 (0 0 0 1 0 0 0 0 0 0 0 0 0 0 1 1))
+;    (1 (0 0 1 0 0 0 0 0 0 0 0 0 0 1 0 0))
+;    (2 (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0))
+;    (3 (0 0 0 0 0 0 0 0 0 1 0 1 0 1 0 1))
+;    (4 (1 1 1 1 1 1 1 1 0 0 0 0 0 0 0 0))))
+;  (((acc (0 0 0 0 0 0 0 0 0 1 0 1 0 1 0 1))
+;    (pc (0 0 0 0 0 0 0 0 0 0 0 1))
+;    (run-flag (1))
+;    (aeb (0)))
+;   ((0 (0 0 0 1 0 0 0 0 0 0 0 0 0 0 1 1))
+;    (1 (0 0 1 0 0 0 0 0 0 0 0 0 0 1 0 0))
+;    (2 (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0))
+;    (3 (0 0 0 0 0 0 0 0 0 1 0 1 0 1 0 1))
+;    (4 (1 1 1 1 1 1 1 1 0 0 0 0 0 0 0 0))))
+;  (((acc (0 0 0 0 0 0 0 0 0 1 0 1 0 1 0 1))
+;    (pc (0 0 0 0 0 0 0 0 0 0 1 0))
+;    (run-flag (1))
+;    (aeb (0)))
+;   ((0 (0 0 0 1 0 0 0 0 0 0 0 0 0 0 1 1))
+;    (1 (0 0 1 0 0 0 0 0 0 0 0 0 0 1 0 0))
+;    (2 (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0))
+;    (3 (0 0 0 0 0 0 0 0 0 1 0 1 0 1 0 1))
+;    (4 (0 0 0 0 0 0 0 0 0 1 0 1 0 1 0 1))))
+;  (((acc (0 0 0 0 0 0 0 0 0 1 0 1 0 1 0 1))
+;    (pc (0 0 0 0 0 0 0 0 0 0 1 0))
+;    (run-flag (0))
+;    (aeb (0)))
+;   ((0 (0 0 0 1 0 0 0 0 0 0 0 0 0 0 1 1))
+;    (1 (0 0 1 0 0 0 0 0 0 0 0 0 0 1 0 0))
+;    (2 (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0))
+;    (3 (0 0 0 0 0 0 0 0 0 1 0 1 0 1 0 1))
+;    (4 (0 0 0 0 0 0 0 0 0 1 0 1 0 1 0 1))))))
 
 ; Test whether sum-prog is defined as a list of lists.
 ; (and (list? sum-prog) (not (member #f (map list? sum-prog)))) => #t
@@ -1254,6 +1259,22 @@
 
 ;************************************************************
 
+(define sum-prog
+  '((input)
+    (skipzero)
+    (jump 4)
+    (jump 7)
+    (add 10)
+    (store 10)
+    (jump 0)
+    (load 10)
+    (output)
+    (halt)
+    (data 0)))
+
+(simulate 1 (salo sum-prog))
+ 
+ 
 ;************************************************************
 ; ** problem 11 ** (10 points)
 ; Write one program for the TC-201:
