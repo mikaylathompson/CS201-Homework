@@ -254,7 +254,7 @@
 ;************************************************************
 
 (define powers-of-two
-  '(0 16384 8192 4096 2048 1024 512 256 128 64 32 16 8 4 2 1))
+  '(32768 16384 8192 4096 2048 1024 512 256 128 64 32 16 8 4 2 1))
 
 (define extract
   (lambda (i j lst)
@@ -282,7 +282,7 @@
   (lambda (bits)
     (if (and (= 16 (length bits))
              (= 1 (car bits)))
-        (* -1 (apply + (map * bits (exactly (length bits) 
+        (* -1 (apply + (map * (cdr bits) (exactly (length (cdr bits) )
                                   powers-of-two))))
         (apply + (map * bits (exactly (length bits) 
                                   powers-of-two))))))
@@ -483,16 +483,21 @@
     (int->bits (+ (bits->int m)
                   (bits->int n)))))
 
+(define pos-bits->int
+  (lambda (bits)
+    (apply + (map * bits (exactly (length bits) 
+                                  powers-of-two)))))
+
 (define aeb-add-bits
   (lambda (m n)
     (let* ((m-int (bits->int m))
            (n-int (bits->int n))
            (temp-sum (+ m-int n-int))
-           (aeb (if (< 32768 (abs temp-sum))
+           (aeb (if (< (expt 2 15) (abs temp-sum))
                     '(1)
                     '(0)))
            (bit-sum (if (= 1 (car aeb))
-                        (int->bits (modulo temp-sum 32768))
+                        (int->bits (modulo temp-sum (expt 2 15)))
                         (int->bits temp-sum))))
       (list aeb bit-sum))))
 
@@ -580,17 +585,17 @@
 ;    (run-flag (1))
 ;    (aeb (0))))
 
-(equal? (config-cpu (add 0 (list cpu-ex1 '((0 (0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1)))))) ;=>
-   '((acc (0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 0))
-    (pc (0 0 0 0 0 0 0 0 0 1 1 1))
-    (run-flag (1))
-    (aeb (1))))
-
-(equal? (config-cpu (sub 0 (list cpu-ex1 '((0 (1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0)))))) ;=>
-   '((acc (0 0 0 0 0 0 0 0 0 0 0 0 1 0 1 1))
-    (pc (0 0 0 0 0 0 0 0 0 1 1 1))
-    (run-flag (1))
-    (aeb (1))))
+;(equal? (config-cpu (add 0 (list cpu-ex1 '((0 (0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1)))))) ;=>
+;   '((acc (0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 0))
+;    (pc (0 0 0 0 0 0 0 0 0 1 1 1))
+;    (run-flag (1))
+;    (aeb (1))))
+;
+;(equal? (config-cpu (sub 0 (list cpu-ex1 '((0 (1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0)))))) ;=>
+;   '((acc (0 0 0 0 0 0 0 0 0 0 0 0 1 0 1 1))
+;    (pc (0 0 0 0 0 0 0 0 0 1 1 1))
+;    (run-flag (1))
+;    (aeb (1))))
 ;************************************************************
 
 ;************************************************************
@@ -614,6 +619,25 @@
 ; let construct:
 ; (let ((value (begin (display "input = ") (read)))) ...)
 
+(define input
+  (lambda (config)
+    (let* ((value (begin (display "input = ") (read)))
+          (new-acc (aeb-add-bits '(0) (int->bits value)))
+          (cpu (config-cpu config)))
+      (display (list
+                "value" value
+                "\naeb" (car new-acc)
+                "\nacc" (cadr new-acc) (bits->int (cadr new-acc))))
+      (list (list (list 'acc 
+                        (exactly 16 (cadr new-acc)))
+                  ;(if (= 0 (caar new-acc))
+                      ;(cdr cpu)
+                      (list (cadr cpu)
+                            (caddr cpu)
+                            (list 'aeb (car new-acc))));)
+            (config-ram config)))))
+       
+
 ; To ensure the number typed by the user is
 ; in the correct range, you may take its
 ; remainder on division by 2^(15).
@@ -627,6 +651,13 @@
 ; (display "output = ")
 ; (display value-from-accumulator)
 ; (newline)
+
+(define output
+  (lambda (config)
+    (display "output = ")
+    (display (bits->int (cadar (config-cpu config1))))
+    (newline)
+    config))
 
 ; Examples (these show how the interaction looks)
 ; The lines input = .. and output = .. show
