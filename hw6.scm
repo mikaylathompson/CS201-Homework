@@ -288,19 +288,23 @@
                                   powers-of-two))))))
 ;(bits->int '(1 0))
 ;(bits->int '(0 0 0 1 1 0))
+;(bits->int '(1 0 0 0 0 0 0 0 0 0 0 0 1 1 1 0)) ;=> -14
 
 (define int->bits
   (lambda (int)
-    (cond
-      ((= 0 int) '(0))
-      ((= 1 int) '(1))
-      ((even? int) (append (int->bits (/ int 2)) '(0)))
-      (else (append (int->bits (/ (- int 1) 2)) '(1))))))
+    (let ((new-int (if (<= 0 int)
+                       int
+                       (+ (- 0 int) 32768))))
+      (cond
+        ((= 0 new-int) '(0))
+        ((= 1 new-int) '(1))
+        ((even? new-int) (append (int->bits (/ new-int 2)) '(0)))
+        (else (append (int->bits (/ (- new-int 1) 2)) '(1)))))))
     
 ;(int->bits 0) ;=> (0)
 ;(int->bits 6) ;=> (1 1 0)
 ;(int->bits 14) ;=> (1 1 1 0)
-    
+;(int->bits -1) ;=> (1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1)
 
 ;************************************************************
 ; Next we develop a simulator for the TC-201
@@ -483,14 +487,21 @@
   (lambda (address config)
     (let* ((cpu (config-cpu config))
            (ram (config-ram config))
-           (acc (cadar cpu))
-           (old-adr (ram-read address ram))
-           (temp-acc (add-bits acc old-adr))
-           (aeb (if (< 32768 (abs (temp-acc)))
-                    '(0) '(1)))
-           (new-acc (if (= 1 (car aeb))
-                        (modulo temp-acc 32768)
-                        temp-acc)))
+           (old-acc (cadar cpu))
+           (adr (ram-read address ram))
+           (temp-acc (add-bits old-acc adr))
+           (aeb (if (< 32768 (abs (bits->int temp-acc)))
+                    '(1)
+                    '(0)))
+           (new-acc (exactly 16
+                             (if (= 1 (car aeb))
+                                 (int->bits (modulo (bits->int temp-acc) 32768))
+                                 temp-acc))))
+      (display (list "old-acc " old-acc (bits->int old-acc)
+                     "\nadr " adr (bits->int adr)
+                     "\ntemp-acc " temp-acc (bits->int temp-acc)
+                     "\naeb " aeb
+                     "\nnew-acc " new-acc (bits->int new-acc)))
       (list (list 
              (list 'acc new-acc)
              (cadr cpu)
@@ -498,6 +509,27 @@
              (list 'aeb aeb))
             ram))))
                 
+(define sub
+  (lambda (address config)
+    (let* ((cpu (config-cpu config))
+           (ram (config-ram config))
+           (old-acc (cadar cpu))
+           (adr (ram-read address ram))
+           (temp-acc (add-bits old-acc (int->bits (* -1 (bits->int adr)))))
+           (aeb (if (< 32768 (abs (bits->int temp-acc)))
+                    '(1)
+                    '(0)))
+           (new-acc (exactly 16
+                             (if (= 1 (car aeb))
+                                 (int->bits (modulo (bits->int temp-acc) 32768))
+                                 temp-acc))))
+      (list (list 
+             (list 'acc new-acc)
+             (cadr cpu)
+             (caddr cpu)
+             (list 'aeb aeb))
+            ram))))
+
 
 ; (sub address config) is similar, except that the
 ; contents of the memory register addressed has
@@ -519,43 +551,43 @@
 ; arithmetic error bit should be unchanged.
 
 ; Examples:
-; (config-cpu (add 4 config1)) =>
-;   ((acc (0 0 0 0 0 0 0 0 0 0 1 1 1 0 0 1))
+;(equal? (config-cpu (add 4 config1)) ;=>
+;   '((acc (0 0 0 0 0 0 0 0 0 0 1 1 1 0 0 1))
 ;    (pc (0 0 0 0 0 0 0 0 0 1 1 1))
 ;    (run-flag (1))
-;    (aeb (0)))
+;    (aeb (0))))
 
-; (equal? (config-ram (add 4 config1)) (config-ram config1)) => #t
+; (equal? (config-ram (add 4 config1)) (config-ram config1)); => #t
 
-; (config-cpu (add 5 config1)) =>
-;   ((acc (1 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0))
+;(equal? (config-cpu (add 5 config1)) ;=>
+;   '((acc (1 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0))
 ;    (pc (0 0 0 0 0 0 0 0 0 1 1 1))
 ;    (run-flag (1))
-;    (aeb (0)))
+;    (aeb (0))))
 
-; (config-cpu (sub 4 config1)) =>
-;   ((acc (1 0 0 0 0 0 0 0 0 0 0 1 1 0 1 1))
+;(equal? (config-cpu (sub 4 config1)) ;=>
+;   '((acc (1 0 0 0 0 0 0 0 0 0 0 1 1 0 1 1))
 ;    (pc (0 0 0 0 0 0 0 0 0 1 1 1))
 ;    (run-flag (1))
-;    (aeb (0)))
+;    (aeb (0))))
 
-; (config-cpu (sub 5 config1)) =>
-;   ((acc (0 0 0 0 0 0 0 0 0 0 1 0 1 1 1 0))
+;(equal? (config-cpu (sub 5 config1)) ;=>
+;   '((acc (0 0 0 0 0 0 0 0 0 0 1 0 1 1 1 0))
 ;    (pc (0 0 0 0 0 0 0 0 0 1 1 1))
 ;    (run-flag (1))
-;    (aeb (0)))
+;    (aeb (0))))
 
-; (config-cpu (add 0 (list cpu-ex1 '((0 (0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1)))))) =>
-;   ((acc (0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 0))
-;    (pc (0 0 0 0 0 0 0 0 0 1 1 1))
-;    (run-flag (1))
-;    (aeb (1)))
+(equal? (config-cpu (add 0 (list cpu-ex1 '((0 (0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1)))))) ;=>
+   '((acc (0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 0))
+    (pc (0 0 0 0 0 0 0 0 0 1 1 1))
+    (run-flag (1))
+    (aeb (1))))
 
-; (config-cpu (sub 0 (list cpu-ex1 '((0 (1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0)))))) =>
-;   ((acc (0 0 0 0 0 0 0 0 0 0 0 0 1 0 1 1))
-;    (pc (0 0 0 0 0 0 0 0 0 1 1 1))
-;    (run-flag (1))
-;    (aeb (1)))
+(equal? (config-cpu (sub 0 (list cpu-ex1 '((0 (1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0)))))) ;=>
+   '((acc (0 0 0 0 0 0 0 0 0 0 0 0 1 0 1 1))
+    (pc (0 0 0 0 0 0 0 0 0 1 1 1))
+    (run-flag (1))
+    (aeb (1))))
 ;************************************************************
 
 ;************************************************************
