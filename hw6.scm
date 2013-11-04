@@ -253,6 +253,19 @@
 ; (int->bits 14) => (1 1 1 0)
 ;************************************************************
 
+(define extract
+  (lambda (i j lst)
+    (cond
+      ((> i 0) (extract (- i 1) (- j 1) (cdr lst)))
+      ((= j 0) (list (car lst)))
+      ((= i 0) (cons (car lst)
+                     (extract 0 (- j 1) lst)))
+      (else 'error))))
+
+(extract 1 3 '(a b c d e))
+(extract 4 4 '(a b c d e))
+
+
 ;************************************************************
 ; Next we develop a simulator for the TC-201
 
