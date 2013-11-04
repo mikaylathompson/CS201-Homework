@@ -621,19 +621,9 @@
 
 (define input
   (lambda (config)
-    (let* ((value (begin (display "input = ") (read)))
-           (new-acc (aeb-add-bits '(0) (int->bits value)))
-           (cpu (config-cpu config)))
-      ;      (display (list
-      ;                "value" value
-      ;                "\naeb" (car new-acc)
-      ;                "\nacc" (cadr new-acc) (bits->int (cadr new-acc))))
-      (list (list (list 'acc 
-                        (exactly 16 (cadr new-acc)))
-                  (cadr cpu)
-                  (caddr cpu)
-                  (list 'aeb (car new-acc)))
-            (config-ram config)))))
+    (list (cons (list 'acc (exactly 16 (int->bits (begin (display "input = ") (read)))))
+                (cdr (config-cpu config)))
+          (config-ram config))))
        
 
 ; To ensure the number typed by the user is
@@ -992,25 +982,24 @@
 
 (define next-config
   (lambda (config)
-    (display (list "\nline: " (bits->int (cadr (cadar config)))
-                   "\ninstr: " (get-instr config)
-                   "\ncontents: " (get-contents config) "\n")) 
+    ;(display (list "\nline: " (bits->int (cadr (cadar config)))
+    ;               "\ninstr: " (get-instr config)
+    ;               "\ncontents: " (get-contents config) "\n")) 
     (if (halt? config)
         (set-rf config 0)
-        (incr-pc 1
-                 (case (get-instr config)
-                   ((1) (xload (get-contents config) config))
-                   ((2) (store (get-contents config) config))
-                   ((3) (add (get-contents config) config))
-                   ((4) (sub (get-contents config) config))
-                   ((5) (input config))
-                   ((6) (output config))
-                   ((7) (jump (get-contents config) config))
-                   ((8) (skipzero config))
-                   ((9) (skippos config))
-                   ((10) (skiperr config))
-                   ((11) (loadi (get-contents config) config))
-                   ((12) (storei (get-contents config) config)))))))
+        (case (get-instr config)
+          ((1) (incr-pc 1 (xload (get-contents config) config)))
+          ((2) (incr-pc 1 (store (get-contents config) config)))
+          ((3) (incr-pc 1 (add (get-contents config) config)))
+          ((4) (incr-pc 1 (sub (get-contents config) config)))
+          ((5) (incr-pc 1 (input config)))
+          ((6) (incr-pc 1 (output config)))
+          ((7) (jump (get-contents config) config))
+          ((8) (skipzero config))
+          ((9) (skippos config))
+          ((10) (skiperr config))
+          ((11) (incr-pc 1 (loadi (get-contents config) config)))
+          ((12) (incr-pc 1 (storei (get-contents config) config)))))))
             
 
 ; This example is useful for testing next-config.
@@ -1273,7 +1262,7 @@
     (halt)        ; 9
     (data 0)))    ; 10
 
-(simulate 100 (salo sum-prog))
+;(simulate 100 (salo sum-prog))
  
  
 ;************************************************************
