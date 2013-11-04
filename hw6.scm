@@ -253,6 +253,9 @@
 ; (int->bits 14) => (1 1 1 0)
 ;************************************************************
 
+(define powers-of-two
+  '(32768 16384 8192 4096 2048 1024 512 256 128 64 32 16 8 4 2 1))
+
 (define extract
   (lambda (i j lst)
     (cond
@@ -274,6 +277,17 @@
 
 ;(exactly 3 '(a b c d e))
 ;(exactly 8 '(a b c d e))
+
+(define bits->int
+  (lambda (bits)
+    (apply +
+           (map *
+                bits
+                (exactly (length bits) powers-of-two)))))
+;(bits->int '(1 0))
+;(bits->int '(0 0 0 1 1 0))
+
+    
 
 ;************************************************************
 ; Next we develop a simulator for the TC-201
