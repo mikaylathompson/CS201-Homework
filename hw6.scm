@@ -287,6 +287,17 @@
 ;(bits->int '(1 0))
 ;(bits->int '(0 0 0 1 1 0))
 
+(define int->bits
+  (lambda (int)
+    (cond
+      ((= 0 int) '(0))
+      ((= 1 int) '(1))
+      ((even? int) (append (int->bits (/ int 2)) '(0)))
+      (else (append (int->bits (/ (- int 1) 2)) '(1))))))
+    
+;(int->bits 0) ;=> (0)
+;(int->bits 6) ;=> (1 1 0)
+;(int->bits 14) ;=> (1 1 1 0)
     
 
 ;************************************************************
