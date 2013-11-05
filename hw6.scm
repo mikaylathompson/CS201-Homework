@@ -1111,6 +1111,10 @@
        (append '(1 0 0 1) (exactly 12 '(0))))
       ((equal? 'skiperr (car prog))
        (append '(1 0 1 0) (exactly 12 '(0))))
+      ((equal? 'loadi (car prog))
+       (append '(1 0 1 1) (exactly 12 (int->bits (cadr prog)))))
+      ((equal? 'storei (car prog))
+       (append '(1 1 0 0) (exactly 12 (int->bits (cadr prog)))))
       (else (exactly 16 '(0))))))
     
 (define add-prog-to-ram
