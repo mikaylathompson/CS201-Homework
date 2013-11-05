@@ -982,9 +982,9 @@
 
 (define next-config
   (lambda (config)
-    ;(display (list "\nline: " (bits->int (cadr (cadar config)))
-    ;               "\ninstr: " (get-instr config)
-    ;               "\ncontents: " (get-contents config) "\n")) 
+    (display (list "\nline: " (bits->int (cadr (cadar config)))
+                   "\ninstr: " (get-instr config)
+                   "\ncontents: " (get-contents config) "\n")) 
     (if (halt? config)
         (set-rf config 0)
         (case (get-instr config)
@@ -1295,5 +1295,27 @@
 ;; output = 14
 
 ;************************************************************
+
+(define reverse-prog
+  '((input)
+    (skipzero)
+    (jump 4)
+    (jump 12)
+    (loadi 16)
+    (skipzero)
+    (halt)
+    (output)
+    (load 16)
+    (add 18)
+    (store 16)
+    (jump 4)
+    (storei 16)
+    (load 16)
+    (add 17)
+    (store 16)
+    (data 19)
+    (data 1)
+    (data -1)
+    (data 0)))
 
 ;********************** end of hw6.scm **********************
