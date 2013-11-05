@@ -982,9 +982,10 @@
 
 (define next-config
   (lambda (config)
-    (display (list "\nline: " (bits->int (cadr (cadar config)))
-                   "\ninstr: " (get-instr config)
-                   "\ncontents: " (get-contents config) "\n")) 
+    ;(display (list "\nline: " (bits->int (cadr (cadar config)))
+    ;               "\ninstr: " (get-instr config)
+    ;               "\ncontents: " (get-contents config) 
+    ;               "\naccum: " (bits->int (cadaar config)))) 
     (if (halt? config)
         (set-rf config 0)
         (case (get-instr config)
@@ -1308,20 +1309,25 @@
         (end 18)
         (one 19)
         (negone 20)
-        (data 21))
+        (data 22))
     (list
+     ; start
      (list 'input)
      (list 'skipzero)
      (list 'jump save)
      (list 'jump finish)
+     ; finsh
      (list 'load end)
      (list 'add negone)
      (list 'store end)
      (list 'loadi end)
-     (list 'skippos)
+     (list 'skipzero)
+     (list 'jump print)
      (list 'halt)
+     ; print
      (list 'output)
      (list 'jump finish)
+     ; save
      (list 'storei end)
      (list 'load end)
      (list 'add one)
@@ -1330,9 +1336,11 @@
      (list 'data data)
      (list 'data 1)
      (list 'data -1)
+     (list 'data 0)
+     ; data
      (list 'data 0))))
 
-(simulate 200 (salo reverse-prog))
+;(define x (simulate 200 (salo reverse-prog)))
 
 ;********************** end of hw6.scm **********************
 
