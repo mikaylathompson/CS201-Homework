@@ -2,8 +2,8 @@
 ; CS 201a HW #7  DUE Wednesday, November 20, at 11:59 pm
 ; using the submit command.  
 ; ********************************************************************
-; Name:
-; Email address:
+; Name: Mikayla Thompson
+; Email address: mikayla.thompson@yale.edu
 ; ********************************************************************
 ; Topics: strings, regular expressions, finite-state
 ; acceptors, and context free grammars
@@ -20,7 +20,7 @@
 ; Modify the following definition to reflect the number of
 ; hours you spent on this assignment.
 
-(define hours 0)
+(define hours 3)
 
 ; ********************************************************************
 ; Representation of finite strings
