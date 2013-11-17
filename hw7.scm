@@ -707,11 +707,11 @@
 ; in the given format that generates the language of the
 ; Regular Expression exp-chase (defined before problem (2).)
 
-; Some basic tests
- (list? cfg-chase) ;=> #t
- (length cfg-chase) ;=> 2
- (symbol? (cfg-start-symbol cfg-chase)) ;=> #t
- (list? (cfg-rules cfg-chase)) ;=> #t
+;; Some basic tests
+; (list? cfg-chase) ;=> #t
+; (length cfg-chase) ;=> 2
+; (symbol? (cfg-start-symbol cfg-chase)) ;=> #t
+; (list? (cfg-rules cfg-chase)) ;=> #t
 ; ********************************************************************
 
 
@@ -772,7 +772,26 @@
      (pro (our)))))
           
      
- 
+ ; remove-all function from hw2.scm
+(define remove-all
+  (lambda (item list)
+    (cond
+      ((null? list) 
+       '())
+      ((equal? (car list) 
+               item) 
+       (remove-all item (cdr list)))
+      (else 
+       (cons (car list) 
+             (remove-all item (cdr list)))))))
+; remove-duplicates function from hw2.scm
+(define remove-duplicates
+  (lambda (list)
+    (if (null? list)
+        '()
+        (cons (car list) 
+              (remove-duplicates (remove-all (car list) 
+                                             (cdr list)))))))
 
 ; ********************************************************************
 ; ** problem 9 ** (10 points)
@@ -792,6 +811,11 @@
 ; order of their first occurrence, with
 ; duplicates removed.
 
+(define cfg-symbols
+  (lambda (cfg)
+    (remove-duplicates (flatten (cons (cfg-start-symbol cfg)
+                                      (cfg-rules cfg))))))
+
 ; (cfg-nonterminals cfg)
 ; returns the list of all nonterminal symbols that
 ; occur in cfg, in the order of their first
@@ -800,6 +824,16 @@
 ; is the start symbol or it occurs as the
 ; lhs of some rule in the grammar.
 
+(define cfg-nonterminals
+  (lambda (cfg)
+    (if (null? (cfg-rules cfg))
+        '()
+        (remove-duplicates
+         (cons (rule-lhs (car (cfg-rules cfg)))
+               (cfg-nonterminals
+                (make-cfg (cfg-start-symbol cfg)
+                          (cdr (cfg-rules cfg)))))))))
+
 ; (cfg-terminals cfg)
 ; returns the list of all terminal symbols that
 ; occur in cfg, in the order of their first
@@ -807,16 +841,44 @@
 ; A symbol is a *terminal symbol* if it occurs
 ; in the grammar and is not a nonterminal symbol.
 
+(define remove-overlap
+  (lambda (lst targets)
+    (if (null? targets)
+        lst
+        (remove-overlap (remove-all (car targets) lst) 
+                        (cdr targets)))))
+
+(define cfg-terminals
+  (lambda (cfg)
+    (remove-overlap (cfg-symbols cfg)
+                    (cfg-nonterminals cfg))))
+
 ; (leftmost-nonterminal str cfg)
 ; returns the symbol that is the leftmost occurrence
 ; of a nonterminal symbol in the String str with respect to
 ; the grammar cfg.  If no nonterminal occurs in str,
 ; #f is returned.
+(define first-overlap
+  (lambda (lst targets)
+    (cond
+      ((null? lst) #f)
+      ((contains? (car lst) targets) (car lst))
+      (else (first-overlap (cdr lst) targets)))))
+
+(define leftmost-nonterminal
+  (lambda (str cfg)
+    (first-overlap str (cfg-nonterminals cfg))))
 
 ; (terminal-string? str cfg)
 ; returns #t if the String str contains only terminal
 ; symbols of cfg, and #f otherwise.
 ; You may assume that str contains only symbols from cfg.
+
+(define terminal-string?
+  (lambda (str cfg)
+    (if (leftmost-nonterminal str cfg)
+        #f
+        #t)))
 
 ; (replace-leftmost sym str1 str2)
 ; takes a symbol sym and two strings str1 and str2
@@ -824,20 +886,29 @@
 ; for the leftmost occurrence of sym in str1.
 ; If sym does not occur in str1, str1 is returned unchanged.
 
+(define replace-leftmost
+  (lambda (sym str1 str2)
+    (if (contains? sym str1)
+        (if (equal? (car str1) sym)
+            (append str2 (cdr str1))
+            (cons (car str1)
+                    (replace-leftmost sym (cdr str1) str2)))
+        str1)))
+
 ; Examples:
-; (cfg-symbols cfg1) => (s a b)
-; (cfg-symbols cfg3) => (s a vq long st very vq1 quite story tale)
-; (cfg-nonterminals cfg1) => (s)
-; (cfg-nonterminals cfg3) => (s vq vq1 st)
-; (cfg-terminals cfg1) => (a b)
-; (cfg-terminals cfg3) => (a long very quite story tale)
-; (leftmost-nonterminal '(a a b s a) cfg1) => s
-; (leftmost-nonterminal '(a very long st) cfg3) => st
-; (terminal-string? '(a a b s a) cfg1) => #f
-; (terminal-string? '(long quite a) cfg3) => #t
-; (replace-leftmost '<thing> '(the <thing> eats the <thing>) '(big spider)) => (the big spider eats the <thing>)
-; (replace-leftmost 's '(alas and alack) '(matters not)) => (alas and alack)
-; (replace-leftmost  'yours '(what is mine is yours) '(thine)) => (what is mine is thine)
+; (cfg-symbols cfg1) ;=> (s a b)
+; (cfg-symbols cfg3) ;=> (s a vq long st very vq1 quite story tale)
+; (cfg-nonterminals cfg1) ;=> (s)
+; (cfg-nonterminals cfg3) ;=> (s vq vq1 st)
+; (cfg-terminals cfg1) ;=> (a b)
+; (cfg-terminals cfg3) ;=> (a long very quite story tale)
+; (leftmost-nonterminal '(a a b s a) cfg1) ;=> s
+; (leftmost-nonterminal '(a very long st) cfg3) ;=> st
+; (terminal-string? '(a a b s a) cfg1) ;=> #f
+; (terminal-string? '(long quite a) cfg3) ;=> #t
+; (replace-leftmost '<thing> '(the <thing> eats the <thing>) '(big spider)) ;=> (the big spider eats the <thing>)
+; (replace-leftmost 's '(alas and alack) '(matters not)) ;=> (alas and alack)
+; (replace-leftmost  'yours '(what is mine is yours) '(thine)) ;=> (what is mine is thine)
 ; ********************************************************************
 
 
