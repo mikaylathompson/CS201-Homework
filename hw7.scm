@@ -357,6 +357,13 @@
 
 ; (reverse-exp exp)
 
+(define reverse-exp
+  (lambda (exp)
+    (case (reg-exp-type exp)
+      ((symbol) exp)
+      ((conc) (if (null? exp) exp (map reverse-exp (reverse exp))))
+      (else (cons (car exp) (map reverse-exp (cdr exp)))))))
+
 ; that takes a Regular Expression exp and returns a
 ; Regular Expression for the language that contains
 ; the reverse of every string in the language of exp,
@@ -365,15 +372,15 @@
 ; Hint: try recursion on the structure of a Regular Expression.
 
 ; Examples (your random results may vary):
-
-; (pick-from-exp (reverse-exp exp0)) => ()
-; (pick-from-exp (reverse-exp exp1)) => (b a b a a)
-; (pick-from-exp (reverse-exp exp2)) => (b b c)
-; (pick-from-exp (reverse-exp exp4)) => (very quite)
-; (pick-from-exp (reverse-exp exp5)) => (r a a c)
-; (pick-from-exp (reverse-exp exp6)) => (dog sleeping the)
-; (pick-from-exp (reverse-exp exp7)) => (story long very quite quite quite very a)
-; (pick-from-exp (reverse-exp exp9)) => (t r u g o y)
+;
+; (pick-from-exp (reverse-exp exp0)) ;=> ()
+; (pick-from-exp (reverse-exp exp1)) ;=> (b a b a a)
+; (pick-from-exp (reverse-exp exp2)) ;=> (b b c)
+; (pick-from-exp (reverse-exp exp4)) ;=> (very quite)
+; (pick-from-exp (reverse-exp exp5)) ;=> (r a a c)
+; (pick-from-exp (reverse-exp exp6)) ;=> (dog sleeping the)
+; (pick-from-exp (reverse-exp exp7)) ;=> (story long very quite quite quite very a)
+; (pick-from-exp (reverse-exp exp9)) ;=> (t r u g o y)
 ; ********************************************************************
 
 
