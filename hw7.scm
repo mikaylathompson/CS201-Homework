@@ -235,7 +235,8 @@
               ((u:) 'union)
               ((*:) 'star)
               ((+:) 'plus)
-              ((?:) 'qmark))))))
+              ((?:) 'qmark)
+              (else 'conc))))))
                           
 
 
@@ -257,6 +258,15 @@
 ; (map reg-exp-type exp9) ;=> (conc qmark conc)
 ; ********************************************************************
 
+; flatten turns a nested list into a flat one
+(define flatten
+  (lambda (lst)
+    (cond
+      ((null? lst) '())
+      ((list? (car lst))
+       (append (flatten (car lst)) (flatten (cdr lst))))
+      (else 
+       (cons (car lst) (flatten (cdr lst)))))))
 
 ; ********************************************************************
 ; ** problem 3 ** (10 points)
@@ -282,6 +292,45 @@
 
 (#%require srfi/27)
 
+(define make-union
+  (lambda (options)
+    (pick-from-exp (list-ref options
+                             (random-integer (length options))))))
+  
+(define make-star
+  (lambda (sym)
+    (let ((coin (random-integer 2)))
+      (if (= 0 coin)
+          '()
+          (cons (pick-from-exp sym) (make-star sym))))))
+
+(define make-plus
+  (lambda (sym)
+    (let ((coin (random-integer 2)))
+      (if (= 0 coin)
+          (list (pick-from-exp sym))
+          (cons (pick-from-exp sym) (make-plus sym))))))
+
+(define make-qmark
+  (lambda (sym)
+    (let ((coin (random-integer 2)))
+      (if (= 0 coin)
+          '()
+          (list (pick-from-exp sym))))))
+
+(define pick-from-exp
+  (lambda (exp)
+    (case (reg-exp-type exp)
+      ((symbol) exp)
+      ((conc) (if (null? exp)
+                  '()
+                  (flatten (cons (pick-from-exp (car exp)) 
+                                 (pick-from-exp (cdr exp))))))
+      ((star) (make-star (cadr exp)))
+      ((plus) (make-plus (cadr exp)))
+      ((qmark) (make-qmark (cadr exp)))
+      ((union) (make-union (cdr exp))))))
+
 ; Examples (your random results may vary):
 
 ; (pick-from-exp exp0) => ()
@@ -290,7 +339,7 @@
 ; (pick-from-exp exp2) => (a b)
 ; (pick-from-exp exp3) => (very very very)
 ; (pick-from-exp exp4) => (very very quite)
-; (pick-from-exp exp5) => (c a d r)
+; (pick-from-exp exp5) ;=> (c a d r)
 ; (pick-from-exp exp5) => (c a r)
 ; (pick-from-exp exp6) => (the sleeping dog)
 ; (pick-from-exp exp7) => (a quite long story)
