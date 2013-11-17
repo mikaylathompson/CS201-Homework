@@ -54,26 +54,49 @@
 ; if the value is a permitted symbol (as defined above)
 ; and #f otherwise.
 
+(define ok-symbol?
+  (lambda (value)
+    (case value
+      ((u: *: +: ?:) #f)
+      (else #t))))
+
+
 ; (ok-string? value)
 ; takes an arbitrary Scheme value and returns #t 
 ; if the value is a String (that is, a list of 
 ; permitted symbols.)
 
+(define ok-string?
+  (lambda (value)
+    (cond
+      ((not (list? value)) #f)
+      ((null? value) #t)
+      ((ok-symbol? (car value)) (ok-string? (cdr value)))
+      (else #f))))
+
 ; (symbol-count sym str)
 ; takes a permitted symbol sym and a String str
 ; and returns the number of occurrences of sym in str.
 
+(define symbol-count
+  (lambda (sym str)
+    (apply + (map (lambda (test)
+                    (if (equal? sym test)
+                        1
+                        0))
+                  str))))
+
 ; Examples
 
-; (ok-symbol? 'hi!) => #t
-; (ok-symbol? 'u:) => #f
-; (ok-symbol? 'a) => #t
-; (ok-string? '()) => #t
-; (ok-string? '(man oh man)) => #t
-; (ok-string? '(this one is +: not)) => #f
-; (symbol-count 'a '(a a b a)) => 3
-; (symbol-count 'c '(a a b a)) => 0
-; (symbol-count 'oh '(man oh man)) => 1
+; (ok-symbol? 'hi!) ;=> #t
+; (ok-symbol? 'u:) ;=> #f
+; (ok-symbol? 'a); => #t
+; (ok-string? '()) ;=> #t
+; (ok-string? '(man oh man)) ;=> #t
+; (ok-string? '(this one is +: not)); => #f
+; (symbol-count 'a '(a a b a)) ;=> 3
+; (symbol-count 'c '(a a b a)) ;=> 0
+; (symbol-count 'oh '(man oh man)) ;=> 1
 ; ********************************************************************
 
 
