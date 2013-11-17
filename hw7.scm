@@ -162,6 +162,24 @@
 (define re-op car)
 (define re-args cdr)
 
+(define and-list
+  (lambda (lst)
+    (if (null? lst)
+        #t
+        (if (or (equal? #t (car lst)) 
+                (equal? 1 (car lst)))
+            (and-list (cdr lst))
+            #f))))
+
+(define or-list
+  (lambda (lst)
+    (if (null? lst)
+        #f
+        (if (or (equal? #t (car lst)) 
+                (equal? 1 (car lst)))
+            #t
+            (or-list (cdr lst))))))
+
 ; ********************************************************************
 ; ** problem 2 **  (10 points)
 ; Write two procedures
@@ -173,6 +191,29 @@
 ; takes an arbitrary Scheme value and returns #t
 ; if it is a Regular Expression according to the definition
 ; above, and #f otherwise.
+
+(define reg-exp?
+  (lambda (value)
+    (cond
+      ((not (list? value)) (if (ok-symbol? value) #t #f))
+      ((ok-string? value) #t)
+      ((ok-symbol? (car value)) (reg-exp? (cdr value)))
+      ((case (car value)
+         ((u:) (if (>= (length (cdr value)) 2)
+                   (and-list (map reg-exp? (cdr value)))
+                   #f))
+         ((*: +* ?:) (if (= (length (cdr value)) 1)
+                         (reg-exp? (cdr value))
+                         #f))
+         (else #f)))
+      (else #f))))
+
+; 1) A permitted symbol 
+; 2) a list containing the Regular Expressions to be concatenated.
+; 3) u: *two or more* expressions
+; 4) *: and containing one Regular Expression.
+; 5) +: and containing one Regular Expression.
+; 6) ?: and containing one Regular Expression.
 
 ; (reg-exp-type exp)
 ; that takes a Regular Expression exp and returns its type
@@ -190,12 +231,12 @@
 ; The procedure reg-exp? should return #t for the Regular Expressions
 ; defined above.
 
-; (reg-exp? 'dog) => #t
-; (reg-exp? 'u:) => #f
-; (reg-exp? '(u: a ?:)) => #f
-; (reg-exp? '(?: b c)) => #f
-; (reg-exp? '(u: (a b))) => #f
-; (reg-exp? '(u: (*: a) (*: b))) => #t
+ (reg-exp? 'dog) ;=> #t
+ (reg-exp? 'u:) ;=> #f
+ (reg-exp? '(u: a ?:)) ;=> #f
+ (reg-exp? '(?: b c)) ;=> #f
+ (reg-exp? '(u: (a b))) ;=> #f
+ (reg-exp? '(u: (*: a) (*: b))) ;=> #t
 ; (reg-exp-type 'hi) => symbol
 ; (reg-exp-type exp0) => conc
 ; (reg-exp-type exp1) => conc
