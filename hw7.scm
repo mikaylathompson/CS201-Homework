@@ -693,16 +693,30 @@
 
 ; cfg-chase
 
+(define cfg-chase
+  (make-cfg
+   's
+   '((s (first multi the noun))
+     (first (the noun chased))
+     (multi (the noun that chased))
+     (multi ())
+     (noun (cat))
+     (noun (dog))
+     (noun (mouse)))))
+
 ; in the given format that generates the language of the
 ; Regular Expression exp-chase (defined before problem (2).)
 
 ; Some basic tests
-; (list? cfg-chase) => #t
-; (length cfg-chase) => 2
-; (symbol? (cfg-start-symbol cfg-chase)) => #t
-; (list? (cfg-rules cfg-chase)) => #t
+ (list? cfg-chase) ;=> #t
+ (length cfg-chase) ;=> 2
+ (symbol? (cfg-start-symbol cfg-chase)) ;=> #t
+ (list? (cfg-rules cfg-chase)) ;=> #t
 ; ********************************************************************
 
+
+            
+  
 
 ; ********************************************************************
 ; ** problem 8 ** (10 points)
@@ -727,6 +741,38 @@
 ; (equal? cfg2 my-cfg) => #f
 ; ********************************************************************
 
+; _my_ _friend_ is _her_ _uncle's_ _gf's_ _sister's_ _aunt's_ _mother's_ _doctor_
+
+ (define my-cfg
+  (make-cfg
+   's
+   '((s (pro noun is pro np))
+     (np (posn noun))
+     (posn ())
+     (posn (posn noun 's))
+     (noun (friend))
+     (noun (sister))
+     (noun (father))
+     (noun (brother))
+     (noun (mother))
+     (noun (aunt))
+     (noun (uncle))
+     (noun (cousin))
+     (noun (wife))
+     (noun (husband))
+     (noun (girlfriend))
+     (noun (boyfriend))
+     (noun (boss))
+     (noun (co-worker))
+     (noun (doctor))
+     (pro (my))
+     (pro (her))
+     (pro (his))
+     (pro (your))
+     (pro (our)))))
+          
+     
+ 
 
 ; ********************************************************************
 ; ** problem 9 ** (10 points)
