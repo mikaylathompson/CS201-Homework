@@ -226,22 +226,35 @@
 ; in the Regular Expression is u:, *:, +: or ?:, respectively.
 ; Otherwise, the type is conc.
 
+(define reg-exp-type
+  (lambda (value)
+    (cond
+      ((symbol? value) 'symbol)
+      ((ok-string? value) 'conc)
+      (else (case (car value)
+              ((u:) 'union)
+              ((*:) 'star)
+              ((+:) 'plus)
+              ((?:) 'qmark))))))
+                          
+
+
 ; Examples:
 
 ; The procedure reg-exp? should return #t for the Regular Expressions
 ; defined above.
 
- (reg-exp? 'dog) ;=> #t
- (reg-exp? 'u:) ;=> #f
- (reg-exp? '(u: a ?:)) ;=> #f
- (reg-exp? '(?: b c)) ;=> #f
- (reg-exp? '(u: (a b))) ;=> #f
- (reg-exp? '(u: (*: a) (*: b))) ;=> #t
-; (reg-exp-type 'hi) => symbol
-; (reg-exp-type exp0) => conc
-; (reg-exp-type exp1) => conc
-; (reg-exp-type exp2) => union
-; (map reg-exp-type exp9) => (conc qmark conc)
+; (reg-exp? 'dog) ;=> #t
+; (reg-exp? 'u:) ;=> #f
+; (reg-exp? '(u: a ?:)) ;=> #f
+; (reg-exp? '(?: b c)) ;=> #f
+; (reg-exp? '(u: (a b))) ;=> #f
+; (reg-exp? '(u: (*: a) (*: b))) ;=> #t
+; (reg-exp-type 'hi) ;=> symbol
+; (reg-exp-type exp0) ;=> conc
+; (reg-exp-type exp1) ;=> conc
+; (reg-exp-type exp2) ;=> union
+; (map reg-exp-type exp9) ;=> (conc qmark conc)
 ; ********************************************************************
 
 
