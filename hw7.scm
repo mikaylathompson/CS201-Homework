@@ -474,6 +474,14 @@
    '(((start a) as) ((start b) bs)
      ((as a) as) ((bs b) bs))))
 
+; contains returns true if item is a top level element in lst
+(define contains?
+  (lambda (item lst)
+    (cond
+      ((null? lst) #f)
+      ((equal? item (car lst)) #t)
+      (else (contains? item (cdr lst))))))
+
 ; ********************************************************************
 ; ** problem 5 ** (10 points)
 ; Write two procedures
@@ -488,29 +496,73 @@
 ; If there is no transition defined for the state and the symbol,
 ; the procedure returns #f.
 
+(define next-state
+  (lambda (dfa state symbol)
+    (next-state-helper (transition-table dfa) state symbol)))
+           
+(define next-state-helper
+  (lambda (table state symbol)
+    (if (null? table)
+        #f
+        (if (and (equal? (transition-from-state (car table)) state)
+                 (equal? (transition-symbol (car table)) symbol))
+            (transition-to-state (car table))
+            (next-state-helper (cdr table) state symbol)))))
+
 ; (dfa-accepts? dfa str)
 ; takes a Deterministic Finite Acceptor dfa
 ; and a String str of symbols from the alphabet of the dfa
 ; and returns #t if the acceptor accepts the string, #f otherwise.
 
+(define dfa-accepts?
+  (lambda (dfa str)
+    (let ((final-state (run-states (transition-table dfa) 
+                                   str 
+                                   (start-state dfa))))
+      (if final-state
+          (if (contains? final-state (accepting-states dfa))
+              #t
+              #f)
+          #f))))
+    
+
+(define run-states
+  (lambda (trans-tbl syms now-state)
+    (cond 
+      ((null? syms) now-state)
+      ((equal? #f (next-state-helper trans-tbl now-state (car syms)))
+       #f)
+      (else
+       (run-states trans-tbl 
+                   (cdr syms) 
+                   (next-state-helper trans-tbl now-state (car syms)))))))
+           
+; Plan:
+;   Run through each element in the string:
+;     Look for a next state
+;       If false: return #f
+;     Run with that state and next string
+;   At the end, check that it's in an accepting state
+
+           
 ; Recall that if the dfa is not complete and the String attempts
 ; to take transition that is not in the transition table,
 ; the String is defined to be *not accepted*.
 
 ; Examples:
-; (next-state dfa1 'even 'a) => odd
-; (next-state dfa1 'odd 'b) => odd
-; (next-state dfa3 'adv 'very) => adv
-; (next-state dfa3 'adv 'long) => adj
-; (next-state dfa4 'as 'b) => #f
-; (dfa-accepts? dfa1 '(a b b a b a)) => #t
-; (dfa-accepts? dfa1 '(b b b)) => #f
-; (dfa-accepts? dfa2 '(a a a a)) => #t
-; (dfa-accepts? dfa2 '(b a b)) => #f
-; (dfa-accepts? dfa3 '(a long story)) => #f
-; (dfa-accepts? dfa3 '(a quite very quite long tale)) => #t
-; (dfa-accepts? dfa3 '(a very)) => #f
-; (dfa-accepts? dfa3 '(a story very long)) => #f
+; (next-state dfa1 'even 'a) ;=> odd
+; (next-state dfa1 'odd 'b) ;=> odd
+; (next-state dfa3 'adv 'very) ;=> adv
+; (next-state dfa3 'adv 'long) ;=> adj
+; (next-state dfa4 'as 'b) ;=> #f
+; (dfa-accepts? dfa1 '(a b b a b a)) ;=> #t
+; (dfa-accepts? dfa1 '(b b b)) ;=> #f
+; (dfa-accepts? dfa2 '(a a a a)) ;=> #t
+; (dfa-accepts? dfa2 '(b a b)) ;=> #f
+; (dfa-accepts? dfa3 '(a long story)) ;=> #f
+; (dfa-accepts? dfa3 '(a quite very quite long tale)) ;=> #t
+; (dfa-accepts? dfa3 '(a very)) ;=> #f
+; (dfa-accepts? dfa3 '(a story very long)) ;=> #f
 ; ********************************************************************
 
 
@@ -520,15 +572,33 @@
 
 ; dfa-chase
 
+(define dfa-chase
+  '((the dog cat mouse chased that)
+    (first-the first-noun chased multi-the multi-noun that)
+    first-the
+    (that)
+    (((first-the the) first-noun)
+     ((first-noun dog) chased)
+     ((first-noun cat) chased)
+     ((first-noun mouse) chased)
+     ((chased chased) multi-the)
+     ((multi-the the) multi-noun)
+     ((multi-noun dog) that)
+     ((multi-noun cat) that)
+     ((multi-noun mouse) that)
+     ((that that) chased))))
 ; in the given format to accept the language of all sentences
 ; described by the Regular Expression exp-chase, defined before problem (2).
 
-; Examples
-; (dfa-accepts? dfa-chase '(the cat chased the mouse)) => #t
-; (dfa-accepts? dfa-chase '(cat the mouse the chased)) => #f
-; (dfa-accepts? dfa-chase '(the mouse chased the cat that chased the dog)) => #t
-; (dfa-accepts? dfa-chase '(the cockroach chased the dog)) => #f
+;; Examples
+; (dfa-accepts? dfa-chase '(the cat chased the mouse)) ;=> #t
+; (dfa-accepts? dfa-chase '(cat the mouse the chased)) ;=> #f
+; (dfa-accepts? dfa-chase '(the mouse chased the cat that chased the dog)) ;=> #t
+; (dfa-accepts? dfa-chase '(the cockroach chased the dog)) ;=> #f
 ; ********************************************************************
+
+     
+     
 
 
 ; ********************************************************************
