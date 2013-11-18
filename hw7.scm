@@ -20,7 +20,7 @@
 ; Modify the following definition to reflect the number of
 ; hours you spent on this assignment.
 
-(define hours 3)
+(define hours 5)
 
 ; ********************************************************************
 ; Representation of finite strings
