@@ -746,10 +746,16 @@
  (define my-cfg
   (make-cfg
    's
-   '((s (pro noun is pro np))
+   '((s (pro np verb pro np))
      (np (posn noun))
      (posn ())
      (posn (posn noun 's))
+     (verb (is))
+     (verb (likes))
+     (verb (loves))
+     (verb (knows))
+     (verb (hates))
+     (verb (met))
      (noun (friend))
      (noun (sister))
      (noun (father))
@@ -911,12 +917,52 @@
 ; (replace-leftmost  'yours '(what is mine is yours) '(thine)) ;=> (what is mine is thine)
 ; ********************************************************************
 
+(define cfg-sym-options
+  (lambda (rules sym)
+    (cond
+      ((null? rules) '())
+      ((equal? (rule-lhs (car rules))
+               sym)
+       (cons (rule-rhs (car rules)) 
+             (cfg-sym-options (cdr rules) sym)))
+      (else (cfg-sym-options (cdr rules) sym)))))
+        
+(define nonterms-in-sym
+  (lambda (sym cfg)
+    (let ((nonterms (cfg-nonterminals cfg))
+          (start (cfg-start-symbol cfg)))
+      (cond
+        ((null? sym) '())
+        ((contains? (car sym) nonterms)
+         (cons (car sym) (nonterms-in-sym (remove-all (car sym) (cdr sym))
+                                          cfg)))
+        (else (nonterms-in-sym (cdr sym)
+                               cfg))))))
 
 ; ********************************************************************
 ; ** problem  10 ** (10 points)
 ; Write one procedure 
 
 ; (generate cfg)
+
+(define generate
+  (lambda (cfg)
+    (let* ((start (cfg-start-symbol cfg))
+           (start (if (list? start) start (list start)))
+           (rules (cfg-rules cfg))
+           (terms (cfg-terminals cfg)))
+      (if (terminal-string? start cfg)
+          start
+          (let* ((start-nonterms (nonterms-in-sym start cfg))
+                 (replace (car start-nonterms))
+                 (options (cfg-sym-options rules replace))
+                 (replacement (list-ref options 
+                                        (random-integer (length options)))))
+            (generate (make-cfg (replace-leftmost replace
+                                                  start
+                                                  replacement)
+                                rules)))))))
+
 
 ; to generate a random String
 ; in the language of the Context Free Grammar cfg.
