@@ -2,8 +2,8 @@
 ; CS 201a HW #8 DUE 11:59 pm on Friday, Dec. 6
 ; using the Zoo submit command.
 ; ********************************************************************
-; Name:
-; Email address:
+; Name:  Mikayla Thompson
+; Email address:  mikayla.thompson@yale.edu
 ; ********************************************************************
 
 ; Note that Yale College regulations stipulate that
@@ -84,6 +84,141 @@
 ; you should do careful error-checking in this procedure.
 
 ; Examples:
+
+
+(define make-ttt-game
+  ;(lambda ()
+  (lambda args
+    (let ((game (list (list (list '- '- '-) 
+                            (list '- '- '-)
+                            (list '- '- '-))
+                      '- 0)))
+      (lambda args
+        (if (null? args)
+            'ill-formed-command
+            (case (car args)
+              ((board) (car game))
+              ((reset) (set! game (list (list (list '- '- '-) 
+                                              (list '- '- '-)
+                                              (list '- '- '-))
+                                        '- 0))
+                       (car game))
+              ((state) game)
+              ((play)
+               (cond
+                 ((not (equal? (length (cdr args)) 3)) 
+                  'ill-formed-command)
+                 ((not (symbol? (cadr args))) 
+                  'ill-formed-command)
+                 ((not (number? (caddr args))) 
+                  'ill-formed-command)
+                 ((not (number? (cadddr args))) 
+                  'ill-formed-command)
+                 ((not (or (eq? (cadr args) 'x) 
+                           (eq? (cadr args) 'o))) 
+                  'ill-formed-command)
+                 ((or (> (caddr args) 3)
+                      (< (caddr args) 1))
+                  'ill-formed-command)
+                 ((or (> (cadddr args) 3)
+                      (< (cadddr args) 1))
+                  'ill-formed-command)
+                 ((> (caddr game) 9) 'game-over)
+                 (else
+                  (let* ((sym (cadr args))
+                         (row (caddr args))
+                         (col (cadddr args))
+                         (board (car game))
+                         (turns (caddr game))
+                         (now (list-ref 
+                               (list-ref board (- row 1))
+                               (- col 1))))
+                    (cond
+                      ((not (equal? now '-)) 
+                       'square-filled)
+                      ((equal? (cadr game) sym) 
+                       'out-of-turn)
+                      (else 
+                       (case col
+                         ((1) (set-car! (list-ref board (- row 1)) sym))
+                         ((2) (set-car! (cdr (list-ref board (- row 1))) sym))
+                         ((3) (set-car! (cddr (list-ref board (- row 1))) sym)))
+                       (cond
+                         ((check-win board)
+                          (set-car! (cddr game) 10)
+                          (case (check-win board)
+                            ((x) 'x-won)
+                            ((o) 'o-won)
+                            ((cat) 'cats-game)))
+                         (else
+                          (set-car! (cdr game) sym)
+                          (set-car! (cddr game) (+ turns 1))
+                          board))))))))
+              (else 'ill-formed-command)))))))
+
+
+(define check-win
+  (lambda (board)
+    (let* ((ver0 (list (list-ref (list-ref board 0) 0)
+                       (list-ref (list-ref board 1) 0)
+                       (list-ref (list-ref board 2) 0)))
+           (ver1 (list (list-ref (list-ref board 0) 1)
+                       (list-ref (list-ref board 1) 1)
+                       (list-ref (list-ref board 2) 1)))
+           (ver2 (list (list-ref (list-ref board 0) 2)
+                       (list-ref (list-ref board 1) 2)
+                       (list-ref (list-ref board 2) 2)))
+           (hor0 (list-ref board 0))
+           (hor1 (list-ref board 1))
+           (hor2 (list-ref board 2))
+           (dia1 (list (list-ref (list-ref board 0) 0)
+                       (list-ref (list-ref board 1) 1)
+                       (list-ref (list-ref board 2) 2)))
+           (dia2 (list (list-ref (list-ref board 0) 2)
+                       (list-ref (list-ref board 1) 1)
+                       (list-ref (list-ref board 2) 0))))
+      (cond
+        ((or (or (win-list? dia1) (win-list? dia2))
+             (or (win-list? hor1) (win-list? ver1)))
+         (cadr dia1))
+        ((or (win-list? hor0) (win-list? ver0))
+         (car hor0))
+        ((or (win-list? hor2) (win-list? ver2))
+         (car hor2))
+        ((and (and (and (cats-list? hor0) (cats-list? hor1))
+                   (and (cats-list? hor2) (cats-list? ver0)))
+              (and (and (cats-list? ver1) (cats-list? ver2))
+                   (and (cats-list? dia1) (cats-list? dia2))))
+         'cat)
+        (else #f)))))
+         
+
+(define win-list?
+  (lambda (lst)
+    (cond
+      ((not (or (equal? (car lst) 'x) (equal? (car lst) 'o)))
+       #f)
+      ((and (equal? (car lst) (cadr lst)) (equal? (car lst) (caddr lst)))
+       (car lst))
+      (else #f))))
+  
+(define cats-list?
+  (lambda (lst)
+    (case (car lst)
+      ((x) (if (or (equal? (cadr lst) 'o)
+                   (equal? (caddr lst) 'o))
+               #t
+               #f))
+      ((o) (if (or (equal? (cadr lst) 'x)
+                   (equal? (caddr lst) 'x))
+               #t
+               #f))
+      ((-) (if (or (equal? (cdr lst) '(x o))
+                   (equal? (cdr lst) '(o x)))
+               #t
+               #f)))))
+           
+
 
 ;; > (define g1 (make-ttt-game))
 ;; > (g1)
@@ -183,6 +318,13 @@
 ; (random-list n m)
 ; (time-repeats n proc args)
 
+(define random-list
+  (lambda (n m)
+    (if (equal? n 0)
+        '()
+        (cons (random-integer m)
+              (random-list (- n 1) m)))))
+
 ; (random-list n m)
 ; takes positive integers n and m as inputs and
 ; returns a list of n random integers between 0 and m-1
@@ -192,6 +334,21 @@
 ; repeatedly applies proc to the list of arguments args
 ; n times, and returns the total time required by the
 ; n applications.  Recall Scheme's procedure apply.
+
+
+(define time-repeats
+  (lambda (n proc args)
+    (let* ((tmr (make-timer))
+           (ans (time-repeats-helper n proc args))
+           )
+      (tmr))))
+
+(define time-repeats-helper
+  (lambda (n proc args)
+    (if (= n 1)
+        (apply proc args)
+        (let ((ans (apply proc args)))
+          (time-repeats-helper (- n 1) proc args)))))
 
 ; Examples:
 ; (Your random results may vary, and your
@@ -237,13 +394,33 @@
 ; Also, please don't use the "comment boxes" feature in Racket!
 ; ************************************************************************
 
+;(time-repeats 1e6
+;              append
+;              (list (random-list 2 2)
+;                    (random-list 100 2)))
+;  => 0.357
+;
+;
+;(time-repeats 1e6
+;              append
+;              (list (random-list 51 2)
+;                    (random-list 51 2)))
+;  => 1.445
+;
+;(time-repeats 1e6
+;              append
+;              (list (random-list 100 2)
+;                    (random-list 2 2)))
+;  => 2.489
+
+                    
+
 
 ; ************************************************************************
 ; ** problem 4 ** (10 points)
 ; Write a procedure
 
 ; (make-queue)
-
 ; that takes no arguments and returns an object 
 ; (i.e., a procedure with state) that implements a queue
 ; that is initially empty and is capable of processing
@@ -256,6 +433,32 @@
 ; putq! value  add the given value at the end of the current queue
 ;              and return it
 ; length       return the number of elements in the current queue
+
+(define make-queue
+  (lambda ()
+    (let ((q (list (list) 0)))
+      (lambda args
+        (if (null? args)
+            'error
+            (case (car args)
+              ((empty?) (= 0 (cadr q)))
+              ((getq) (caar q))
+              ((delq!) (let* ((val (caar q)))
+                         (set-car! q (cdar q))
+                         (set-cdr! q (list (- (cadr q) 1)))
+                         val))
+              ((putq!) (if (null? q)
+                           (let ((len (cadr q)))
+                             (set-car! q (cdr args))
+                             (set-cdr! q (list (+ len 1))))
+                           (let* ((val (cadr args)))
+                             (set-car! q (append (car q) (list val)))
+                             (set-cdr! q (list (+ (cadr q) 1)))))
+                       (cadr args))
+              ((length) (cadr q))
+              ((state) q)
+              (else 'error)))))))
+
 
 ; If the command is not one of these, return the symbol error.
 ; You may assume that a queue object will be called with at
@@ -283,6 +486,7 @@
 
 ; Examples of using make-queue
 
+;(define q1 (make-queue))
 ;; > (define q1 (make-queue))
 ;; > (q1 'empty?)
 ;; #t
